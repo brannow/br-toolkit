@@ -19,10 +19,23 @@
     "require": {
         "typo3/cms-core": "^9.5"
     },
+    "require-dev": {
+        "typo3/testing-framework": "^4.11.1"
+    },
     "autoload": {
         "psr-4": {
-            "BR\\Toolkit\\": "Classes/"
+            "BR\\Toolkit\\": "Classes"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "BR\\Toolkit\\Tests\\": "Tests"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "TYPO3\\TestingFramework\\Composer\\ExtensionTestEnvironment::prepare"
+        ]
     },
     "config": {
         "vendor-dir": ".Build/vendor",

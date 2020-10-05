@@ -2,11 +2,13 @@
 
 <!-- https://phpunit.de/manual/current/en/appendixes.configuration.html -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/6.1/phpunit.xsd"
-         backupGlobals="false"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/7.5/phpunit.xsd"
+         backupGlobals="true"
+         bootstrap=".Build/vendor/typo3/testing-framework/Resources/Core/Build/UnitTestsBootstrap.php"
          colors="true"
          failOnRisky="true"
          failOnWarning="true"
+         beStrictAboutTestsThatDoNotTestAnything="true"
 >
     <php>
         <ini name="error_reporting" value="-1" />
