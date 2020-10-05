@@ -30,7 +30,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.x-dev"
+            "dev-master": "0.1-dev"
         },
         "typo3/cms": {
             "extension-key": "br_toolkit",
