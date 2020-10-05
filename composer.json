@@ -1,0 +1,42 @@
+{
+    "name": "brannow/br-toolkit",
+    "description": "Generic Quality of Life Library of Modules/Code",
+    "type": "typo3-cms-extension",
+    "keywords": [
+        "TYPO3",
+        "extension",
+        "toolkit"
+    ],
+    "homepage": "https://github.com/brannow/br-toolkit",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Benjamin Rannow",
+            "email": "b.rannow@familie-redlich.de",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "typo3/cms-core": "^9.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "BR\\Toolkit\\": "Classes/"
+        }
+    },
+    "config": {
+        "vendor-dir": ".Build/vendor",
+        "bin-dir": ".Build/bin"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.x-dev"
+        },
+        "typo3/cms": {
+            "extension-key": "br_toolkit",
+            "cms-package-dir": "{$vendor-dir}/typo3/cms",
+            "app-dir": ".Build",
+            "web-dir": ".Build/public"
+        }
+    }
+}
