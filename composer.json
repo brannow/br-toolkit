@@ -17,6 +17,9 @@
         }
     ],
     "require": {
+        "php": "^7.2 | ^7.3",
+        "ext-curl": "*",
+        "ext-openssl": "*",
         "typo3/cms-core": "^9.5"
     },
     "require-dev": {
