@@ -1,6 +1,8 @@
 language: php
+dist: xenial
+os: linux
 
-matrix:
+jobs:
   include:
     - php: 7.2
       env: TYPO3_VERSION=9.5 COVERAGE=1
