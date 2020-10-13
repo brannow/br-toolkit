@@ -4,6 +4,7 @@
 namespace BR\Toolkit\Typo3\DTO;
 
 
+use BR\Toolkit\Exceptions\RoutingException;
 use Psr\Http\Message\ServerRequestInterface;
 
 interface RouteInterface
@@ -16,6 +17,7 @@ interface RouteInterface
 
     /**
      * @return callable
+     * @throws RoutingException
      */
     public function getControllerCallable(): callable;
 }

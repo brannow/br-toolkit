@@ -64,12 +64,7 @@ abstract class RequestRoutingMiddleware implements MiddlewareInterface
      */
     protected function processController(RouteInterface $route)
     {
-        $actionToFire = $route->getControllerCallable();
-        if (!is_callable($actionToFire)) {
-            throw new RoutingException('controller method \''. $actionToFire[1]??'' .'\' not callable in \' '. $actionToFire[0]??'' .'\' ', 1001);
-        }
-
-        return $actionToFire();
+        return ($route->getControllerCallable())();
     }
 
     /**

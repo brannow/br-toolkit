@@ -1,12 +1,12 @@
 <?php
 
-namespace BR\Toolkit\Tests\Helper;
+namespace BR\Toolkit\PHPUnit\Utility;
 
 use PHPUnit\Framework\MockObject\MockBuilder;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-class MockHelper
+abstract class IntegrationMockUtility
 {
     private static $mockCache = [];
     private static $dependencyCache = [];

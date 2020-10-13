@@ -15,6 +15,7 @@ trait RandomHashTrait
     }
 
     /**
+     * random_bytes, with microtime seed
      * @return string
      */
     protected static function randomSha1Hash(): string
@@ -23,7 +24,16 @@ trait RandomHashTrait
             return sha1(random_bytes(20) . microtime());
         } catch (\Exception $e) {}
 
-        return sha1(uniqid((string)mktime(), true));
+        return static::randomSha1HashFallback();
+    }
+
+    /**
+     * random_bytes failed use uniqid, with microtime seed, instead
+     * @return string
+     */
+    protected static function randomSha1HashFallback(): string
+    {
+        return sha1(uniqid((string)microtime(), true));
     }
 
     /**

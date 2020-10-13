@@ -1,0 +1,41 @@
+language: php
+dist: xenial
+os: linux
+
+jobs:
+  include:
+    - php: 7.2
+      env: TYPO3_VERSION=9.5 COVERAGE=1
+    - php: 7.2
+      env: TYPO3_VERSION=9.5
+    - php: 7.3
+      env: TYPO3_VERSION=9.5 COVERAGE=1
+    - php: 7.3
+      env: TYPO3_VERSION=9.5
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+before_install:
+  - composer self-update
+  - composer --version
+
+before_script:
+  - composer require typo3/minimal=$TYPO3_VERSION
+  - git checkout composer.json
+  - export TYPO3_PATH_WEB=$PWD/.Build/Web
+
+script:
+- >
+  if [[ "$COVERAGE" == "0" ]]; then
+    echo;
+    echo "Running unit tests";
+    .Build/bin/phpunit -c phpunit.xml --no-coverage
+  fi
+- >
+  if [[ "$COVERAGE" == "1" ]]; then
+    echo;
+    echo "Running unit tests";
+    .Build/bin/phpunit -c phpunit.xml --coverage-text --colors=never
+  fi

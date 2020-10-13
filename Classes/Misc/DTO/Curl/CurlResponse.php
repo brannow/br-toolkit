@@ -53,10 +53,18 @@ class CurlResponse implements CurlResponseInterface
     }
 
     /**
+     * @return string
+     */
+    public function getData(): string
+    {
+        return $this->data;
+    }
+
+    /**
      * @return array
      */
     public function getArrayDataFromJson(): array
     {
-        return json_decode($this->data, true) ?? [];
+        return json_decode($this->getData(), true) ?? [];
     }
 }

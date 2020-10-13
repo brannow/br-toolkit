@@ -20,7 +20,7 @@ class CurlRequestData implements CurlRequestDataInterface
             $queryString = $this->getQueryString();
             // check if url already had query information
             if (parse_url($this->url, PHP_URL_QUERY)) {
-                return $this->url . $queryString;
+                return $this->url . '&' . $queryString;
             } else {
                 return $this->url . '?' . $queryString;
             }
