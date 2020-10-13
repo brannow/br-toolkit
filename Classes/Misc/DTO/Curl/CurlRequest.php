@@ -42,7 +42,7 @@ class CurlRequest implements CurlRequestInterface
     /**
      * @param int $key
      * @param $value
-     * @return $this|CurlRequestOptionsInterface
+     * @return CurlRequestOptionsInterface
      */
     public function setOption(int $key, $value): CurlRequestOptionsInterface
     {

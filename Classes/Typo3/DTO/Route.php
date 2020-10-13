@@ -2,6 +2,7 @@
 
 namespace BR\Toolkit\Typo3\DTO;
 
+use BR\Toolkit\Exceptions\RoutingException;
 use BR\Toolkit\Typo3\Controller\MiddlewareControllerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -86,9 +87,28 @@ class Route implements RouteInterface, RequestInjectInterface
 
     /**
      * @return callable
+     * @throws RoutingException
      */
     public function getControllerCallable(): callable
     {
+        $controllerInstance = $this->getControllerInstance();
+        $callable = [$controllerInstance, $this->action];
+        if (!is_callable($callable)) {
+            throw new RoutingException('controller method \''. $this->controller .'\' not callable in \' '. $this->action .'\' ', 1001);
+        }
+
+        return $callable;
+    }
+
+    /**
+     * @return RequestInjectInterface|object
+     * @throws RoutingException
+     */
+    private function getControllerInstance()
+    {
+        if (!class_exists($this->controller)) {
+            throw new RoutingException('class \''. $this->controller .'\' not exists');
+        }
         /** @var ObjectManagerInterface $om */
         $om = GeneralUtility::makeInstance(ObjectManager::class);
         /** @var MiddlewareControllerInterface processingController */
@@ -96,6 +116,6 @@ class Route implements RouteInterface, RequestInjectInterface
         if ($controllerInstance instanceof RequestInjectInterface) {
             $controllerInstance->setRequest($this->request);
         }
-        return [$controllerInstance, $this->action];
+        return $controllerInstance;
     }
 }

@@ -35,7 +35,7 @@ class CurlService
      * @param string $method
      * @return CurlRequestInterface
      */
-    protected function getCurlRequest(string $url = '', string $method = 'GET'): CurlRequestInterface
+    public function getCurlRequest(string $url = '', string $method = 'GET'): CurlRequestInterface
     {
         $request = new CurlRequest();
         $request->setUrl($url);
@@ -54,7 +54,7 @@ class CurlService
      * @param CurlRequestInterface $curlRequest
      * @return CurlResponseInterface
      */
-    protected function execute(CurlRequestInterface $curlRequest): CurlResponseInterface
+    public function execute(CurlRequestInterface $curlRequest): CurlResponseInterface
     {
         $this->setupConnection($curlRequest);
         return $this->sendRequest($curlRequest);
@@ -96,7 +96,7 @@ class CurlService
     /**
      *
      */
-    protected function closeConnection(): void
+    public function closeConnection(): void
     {
         if ($this->curlAdapter->curlIsOpen($this->connection)) {
             $this->curlAdapter->curlClose($this->connection);

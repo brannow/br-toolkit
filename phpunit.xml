@@ -31,6 +31,8 @@
             <directory suffix=".php">Classes</directory>
             <exclude>
                 <directory>Classes/Interfaces</directory>
+                <directory>Classes/Misc/Native</directory>
+                <directory>Classes/PHPUnit</directory>
             </exclude>
         </whitelist>
     </filter>

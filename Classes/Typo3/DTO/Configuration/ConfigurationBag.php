@@ -53,24 +53,32 @@ class ConfigurationBag implements ConfigurationBagInterface
     /**
      * @param string $key
      * @param string $delimiter
-     * @return array
+     * @return int[]
      */
     public function getExplodedIntValue(string $key, string $delimiter = ','): array
     {
         $data = $this->getValue($key, '');
-        return $this->intExplode($data, $delimiter);
+        if (is_scalar($data) && !is_array($data)) {
+            return $this->intExplode((string)$data, $delimiter);
+        }
+
+        return [];
     }
 
     /**
      * @param string $path
      * @param string $pathDelimiter
      * @param string $listDelimiter
-     * @return array
+     * @return int[]
      */
     public function getExplodedIntValueFromArrayPath(string $path, string $pathDelimiter = '.', string $listDelimiter = ','): array
     {
         $data = $this->getValueFromArrayPath($path,'', $pathDelimiter);
-        return $this->intExplode($data, $listDelimiter);
+        if (is_scalar($data) && !is_array($data)) {
+            return $this->intExplode((string)$data, $listDelimiter);
+        }
+
+        return [];
     }
 
     /**

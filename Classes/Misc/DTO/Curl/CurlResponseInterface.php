@@ -18,4 +18,9 @@ interface CurlResponseInterface
      * @return array
      */
     public function getArrayDataFromJson(): array;
+
+    /**
+     * @return string
+     */
+    public function getData(): string;
 }

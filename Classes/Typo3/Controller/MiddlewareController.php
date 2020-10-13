@@ -19,4 +19,12 @@ abstract class MiddlewareController implements MiddlewareControllerInterface, Re
     {
         $this->request = $request;
     }
+
+    /**
+     * @return ServerRequestInterface
+     */
+    protected function getRequest(): ServerRequestInterface
+    {
+        return $this->request;
+    }
 }
