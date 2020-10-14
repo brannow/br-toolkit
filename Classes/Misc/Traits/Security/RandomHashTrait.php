@@ -17,14 +17,11 @@ trait RandomHashTrait
     /**
      * random_bytes, with microtime seed
      * @return string
+     * @throws \Exception
      */
     protected static function randomSha1Hash(): string
     {
-        try {
-            return sha1(random_bytes(20) . microtime());
-        } catch (\Exception $e) {}
-
-        return static::randomSha1HashFallback();
+        return sha1(random_bytes(20) . microtime());
     }
 
     /**
