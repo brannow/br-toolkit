@@ -18,10 +18,4 @@ interface TreeProcessorResultGenerateInterface extends TreeProcessorResultInterf
      * @return TreeProcessorResultItemInterface|null
      */
     public function getItem(int $id, bool $createIfNotExists = false): ?TreeProcessorResultItemInterface;
-
-    /**
-     * @param TreeProcessorResultItemInterface $parent
-     * @param TreeProcessorResultItemInterface ...$children
-     */
-    public function relateItems(TreeProcessorResultItemInterface $parent, TreeProcessorResultItemInterface ...$children): void;
 }

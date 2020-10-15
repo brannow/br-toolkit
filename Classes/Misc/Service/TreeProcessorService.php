@@ -15,7 +15,7 @@ class TreeProcessorService
      * @param TreeProcessorDataInterface $data
      * @return TreeProcessorResultInterface
      */
-    public function processArrayToTreeResult(TreeProcessorDataInterface $data): TreeProcessorResultInterface
+    public function processTreeResult(TreeProcessorDataInterface $data): TreeProcessorResultInterface
     {
         return $this->generateTreeResult($data);
     }
@@ -48,10 +48,10 @@ class TreeProcessorService
             $item = $tree->setItemData($id, $itemData);
 
             // create relation
-            if ($rid !== 0) {
+            if ($rid >= 0) {
                 $parentItem = $tree->getItem($rid, true);
                 // be aware this will create a cyclic object references structure
-                $tree->relateItems($parentItem, $item);
+                $parentItem->addChild($item);
             }
         }
 

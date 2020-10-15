@@ -73,7 +73,7 @@ class TreeProcessorServiceTest extends TestCase
     public function testTreeSuccess($id, $pid, $data)
     {
         $treeData = new TreeProcessorArrayData($id, $pid, $data);
-        $treeResult = $this->service->processArrayToTreeResult($treeData);
+        $treeResult = $this->service->processTreeResult($treeData);
 
         $this->assertSame($data[0], $treeResult->getItem(1)->getData());
         $this->assertSame($data[11], $treeResult->getItem(12)->getData());
@@ -113,7 +113,7 @@ class TreeProcessorServiceTest extends TestCase
     public function testTreeWithDataSuccess($id, $pid, $data)
     {
         $treeData = new TreeProcessorArrayData($id, $pid, $data);
-        $treeResult = $this->service->processArrayToTreeResult($treeData);
+        $treeResult = $this->service->processTreeResult($treeData);
 
         $this->assertSame($data[0], $treeResult->getItem(1)->getData());
         $this->assertSame($data[2], $treeResult->getItem(3)->getData());
@@ -180,7 +180,7 @@ class TreeProcessorServiceTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $treeData = new TreeProcessorArrayData($id, $pid, $data);
-        $treeResult = $this->service->processArrayToTreeResult($treeData);
+        $treeResult = $this->service->processTreeResult($treeData);
     }
 
     public function invalidIdTreeDataWithDataProvider(): array
@@ -207,7 +207,7 @@ class TreeProcessorServiceTest extends TestCase
     public function testTreeWithDataInvalidId($id, $pid, $data)
     {
         $treeData = new TreeProcessorArrayData($id, $pid, $data);
-        $treeResult = $this->service->processArrayToTreeResult($treeData);
+        $treeResult = $this->service->processTreeResult($treeData);
 
         $this->assertNull($treeResult->getItem(0));
         $this->assertSame(0, $treeResult->count());

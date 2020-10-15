@@ -61,13 +61,4 @@ class TreeProcessorResult implements TreeProcessorResultGenerateInterface
         $item->setData($data);
         return $item;
     }
-
-    /**
-     * @param TreeProcessorResultItemInterface $parent
-     * @param TreeProcessorResultItemInterface ...$children
-     */
-    public function relateItems(TreeProcessorResultItemInterface $parent, TreeProcessorResultItemInterface ...$children): void
-    {
-        $parent->addChild(...$children);
-    }
 }
