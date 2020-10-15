@@ -18,14 +18,20 @@ used for easy Typo3 Configuration Loading (see: `BR\Toolkit\Typo3\Configuration\
 * [getExplodedIntValueFromArrayPath](#getexplodedintvaluefromarraypath)
 
 #### getValue
-get the config value of the given key, if key not found, `$default` is returned
+get the config value of the given key.
 ```php
 public function getValue(
     string $key, 
     mixed $default = ''
 ): mixed
 ```
-
+##### Arguments
+* `string $key` name of the value
+* `mixed $default` default return value if `$key` is not found
+ 
+##### Return
+ * `mixed`
+ 
 ##### Example
 ```php
 $configBag = new \BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBag(['name' => 'test']);
@@ -40,8 +46,7 @@ $name = $configBag->getValue('name', 'unknown');
 
 
 #### getValueFromArrayPath
-get the config value of the given array keyPath, if keyPath could not resolved or found, `$default` is returned.     
-`$delimiter` is the keyPath Delimiter.
+get the config value of the given array keyPath.     
 ```php
 public function getValueFromArrayPath(
     string $path, 
@@ -50,10 +55,21 @@ public function getValueFromArrayPath(
 ): mixed
 ```
 
+##### Arguments
+* `string $path` name of the value as path
+* `mixed $default` default return value if `$path` is not found (default `''`, \[empty string\])
+* `string $delimiter` delimiter of the `$path` segments (default `.`)
+ 
+##### Return
+ * `mixed`
+
 ##### Example
 ```php
 $configBag = new \BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBag(['settings' => ['default' => 5]]);
 $default = $configBag->getValueFromArrayPath('settings.default', 0);
+// $default = 5
+
+$default = $configBag->getValueFromArrayPath('settings|default', 0, '|');
 // $default = 5
 ```
 ```php
@@ -63,15 +79,20 @@ $default = $configBag->getValueFromArrayPath('settings.default', 0);
 ```
 
 #### getExplodedIntValue
-get the config value of the given key as `int[]`. the value will be transformed into a numeric array.        
-If no valid value for the given key found, an empty array is returned.    
-`$delimiter` is the delimiter of the value list
+get the config value of the given key as `int[]`. The value is expected as separated numeric list
 ```php
 public function getExplodedIntValue(
     string $key, 
     string $delimiter = ','
 ): array
 ```
+
+##### Arguments
+* `string $key` name of the value
+* `mixed $delimiter` delimiter of the `value` for the `$key` (default `.`)
+ 
+##### Return
+* `int[]`
 
 ##### Example
 ```php
@@ -92,9 +113,7 @@ $default = $configBag->getValueFromArrayPath('settings', ',');
 
 
 #### getExplodedIntValueFromArrayPath
-get the config value of the given array keyPath as `int[]`, if keyPath could not resolved or found, an empty array is returned.      
-`$pathDelimiter` is the keyPath Delimiter.     
-`$listDelimiter` is the delimiter of the value list.
+get the config value of the given array keyPath as `int[]`. The value is expected as separated numeric list
 ```php
 public function getExplodedIntValueFromArrayPath(
     string $path, 
@@ -103,11 +122,18 @@ public function getExplodedIntValueFromArrayPath(
 ): array
 ```
 
+##### Arguments
+* `string $path` name of the value as path
+* `mixed $pathDelimiter` delimiter of the `$path` segments (default `.`)
+* `string $listDelimiter` delimiter of the `value` for the `$key` (default `.`)
+
+##### Return
+* `int[]`
+
 ##### Example
 ```php
-// config: ['settings' => ['default' => 5]]
-$configBag = new \BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBag(['settings' => ['test' => '1|a|3']]);
-$default = $configBag->getExplodedIntValueFromArrayPath('settings|default', '|', '|');
+$configBag = new \BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBag(['settings' => ['test' => '1,a,3']]);
+$default = $configBag->getExplodedIntValueFromArrayPath('settings.test', '.', ',');
 // $default = [1,3]
 ```
 

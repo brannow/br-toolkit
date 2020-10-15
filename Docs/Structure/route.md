@@ -13,10 +13,7 @@ Used in `proteced function getRouting(): array;`
 
 #### createRoute
 creates a route,
-* `$controller` must be a fully className string    
-* `$action` visible method name (controller and action must be callable)
-* `$uri` the uri listener (uri path)
-* `$method` allowed methods, empty means everything allowed (see: https://developer.mozilla.org/de/docs/Web/HTTP/Methods)
+
 
 ```php
 public static function createRoute(
@@ -26,6 +23,15 @@ public static function createRoute(
     array $method = []
 ): RouteInterface
 ```
+
+##### Arguments
+* `string $controller` must be a fully className string    
+* `string $action` visible method name (controller and action must be callable)
+* `string $uri` the uri listener (uri path)
+* `string[] $method` allowed methods, empty means everything allowed (see: https://developer.mozilla.org/de/docs/Web/HTTP/Methods)
+ 
+##### Return
+ * `BR\Toolkit\Typo3\DTO\RouteInterface`
 
 ##### example
 ```php
@@ -51,14 +57,19 @@ $route = Route::createRoute(TestController::class, 'someAction', '/api/something
 * [getControllerCallable](#getcontrollercallable)
 
 #### match
-checked if the current route is compatible with the `ServerRequestInterface $request`.     
-The Match depends on the request URI and HTTP_METHOD
-this method is, by default, caseINsensitive!
+checked if the current route is compatible with the current `$request`.
 ```php
 public function match(
     ServerRequestInterface $request
 ): bool
 ```
+
+##### Arguments
+* `Psr\Http\Message\ServerRequestInterface $request` requestObject
+
+##### Return
+ * `bool`
+
 ##### example
 ```php
 // $request = ServerRequestInterface URI = /api/something - GET
@@ -82,13 +93,18 @@ $result = $route->match($request);
 ```
 
 #### getControllerCallable
-get a `callable` from the configurated class + method. if configuration is is not "callable" like class did not exists or method is protected or private, `RoutingException` is thrown.
+get a `callable` from the configurated class + method.
 ```php
 public function getControllerCallable(): callable
 ```
+
+##### Return
+ * `callable`
+
 
 ##### Example
 ```php
 $route = Route::createRoute(TestController::class, 'someAction', '/api/something', ['GET', 'POST']);
 $controllerMethodResult = ($route->getControllerCallable)();
+// this executes TestController::someAction()
 ```
