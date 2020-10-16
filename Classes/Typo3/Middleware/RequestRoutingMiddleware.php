@@ -29,7 +29,6 @@ abstract class RequestRoutingMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-
         $route = $this->processRouting($request);
         if ($route) {
             $data = $this->processController($route);

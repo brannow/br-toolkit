@@ -17,16 +17,16 @@
 
 ### TYPO3 / Configuration
 
-* ConfigurationHandler
+* [ConfigurationHandler](/Docs/configurationHandler.md)
 
 ### TYPO3 / Controller
 
-* MiddlewareController
+* [MiddlewareController](/Docs/middlewareController.md)
 
 ### TYPO3 / Middleware
 
-* RequestRoutingMiddleware
+* [RequestRoutingMiddleware](/Docs/requestRoutingMiddleware.md)
 
-### PHPUnit / Utility
+### PHPUnit / Utility (Testing Only)
 
-* IntegrationMockUtility
+* [IntegrationMockUtility](/Docs/integrationMockUtility.md)

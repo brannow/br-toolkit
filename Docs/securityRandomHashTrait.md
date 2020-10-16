@@ -1,6 +1,6 @@
 # Misc / Traits / Security / RandomHashTrait
 
-create a random cryptographic secure sha1 hash
+create a random cryptographic secure sha1 hash based on 20 random bytes
 
 ##### Methods
 
@@ -18,6 +18,18 @@ protected function getRandomSha1Hash(): string
 
 ##### Return
  * `string`
+
+##### example
+```php
+class MyClass {
+    use \BR\Toolkit\Misc\Traits\Security\RandomHashTrait;
+    public function hash()
+    {
+        $hash = $this->getRandomSha1Hash();
+        // $hash = da39a3ee5e6b4b0d3255bfef95601890afd80709
+    }
+}
+```
 
 ---
 

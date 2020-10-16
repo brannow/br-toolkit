@@ -1,7 +1,7 @@
 # Misc / Service / TreeProcessorService
 
 Process a set of data into a Tree Structure.   
-Performance is [Linear BIG-O(n)](https://en.wikipedia.org/wiki/Big_O_notation#/media/File:Comparison_computational_complexity.svg) 
+Performance is [Linear BIG-O(n)](https://en.wikipedia.org/wiki/Big_O_notation) 
 
 see: [\BR\Toolkit\Misc\DTO\TreeProcessor](/Docs/Structure/treeProcessor.md) for object handling and subclassing options
 
@@ -10,17 +10,17 @@ see: [\BR\Toolkit\Misc\DTO\TreeProcessor](/Docs/Structure/treeProcessor.md) for 
 * [processTreeResult](#processtreeresult)
 
 #### processTreeResult
-create a basic preset `CurlRequestInterface` object
+create a basic preset [`CurlRequestInterface`](/Docs/Structure/treeProcessor.md) object
 
 ```php
 public function processTreeResult(TreeProcessorDataInterface $data): TreeProcessorResultInterface
 ```
 
 ##### Arguments
- * `TreeProcessorDataInterface $data` web url
+ * [`TreeProcessorDataInterface $data` web url](/Docs/Structure/treeProcessor.md)
 
 ##### Return
- * `\BR\Toolkit\Misc\DTO\TreeProcessor\TreeProcessorResultInterface`
+ * [`\BR\Toolkit\Misc\DTO\TreeProcessor\TreeProcessorResultInterface`](/Docs/Structure/treeProcessor.md)
 
 ##### example
 ```php

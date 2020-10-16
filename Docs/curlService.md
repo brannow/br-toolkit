@@ -10,7 +10,7 @@ Subclass it to create for example an API Service
 * [closeConnection](#closeconnection)
 
 #### getCurlRequest
-create a basic preset `CurlRequestInterface` object
+create a basic preset [`CurlRequestInterface`](/Docs/Structure/curl.md) object
 
 ```php
 public function getCurlRequest(string $url = '', string $method = 'GET'): CurlRequestInterface
@@ -21,7 +21,7 @@ public function getCurlRequest(string $url = '', string $method = 'GET'): CurlRe
  * `string $method` HTTP method (see: https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html)
 
 ##### Return
- * `\BR\Toolkit\Misc\DTO\Curl\CurlRequestInterface`
+ * [`\BR\Toolkit\Misc\DTO\Curl\CurlRequestInterface`](/Docs/Structure/curl.md)
 
 ##### example
 ```php
@@ -40,10 +40,10 @@ public function execute(CurlRequestInterface $curlRequest): CurlResponseInterfac
 ```
 
 ##### Arguments
- * `CurlRequestInterface $curlRequest`
+ * [`CurlRequestInterface $curlRequest`](/Docs/Structure/curl.md)
 
 ##### Return
- * `\BR\Toolkit\Misc\DTO\Curl\CurlResponseInterface`
+ * [`\BR\Toolkit\Misc\DTO\Curl\CurlResponseInterface`](/Docs/Structure/curl.md)
 
 ##### example
 ```php
