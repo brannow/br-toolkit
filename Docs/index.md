@@ -6,14 +6,14 @@
 
 ### Misc / Service
 
-* CurlService
-* TreeProcessorService
+* [CurlService](/Docs/curlService.md)
+* [TreeProcessorService](/Docs/treeProcessorService.md)
 
 ### Misc / Traits
 
-* Security / CryptTrait
-* Security / PasswordTrait
-* Security / RandomHashTrait
+* [Security / CryptTrait](/Docs/securityCryptTrait.md)
+* [Security / PasswordTrait](/Docs/securityPasswordTrait.md)
+* [Security / RandomHashTrait](/Docs/securityRandomHashTrait.md)
 
 ### TYPO3 / Configuration
 

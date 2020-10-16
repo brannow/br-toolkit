@@ -1,6 +1,8 @@
-# Misc / BaseEnum
+# Misc / Enum / BaseEnum
 
 Enum Foundation used as parent class
+
+##### Methods
 
 * [getValues](#getvalues)
 * [validate](#validate)
