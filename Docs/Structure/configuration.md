@@ -44,6 +44,7 @@ $name = $configBag->getValue('name', 'unknown');
 // $name = unknown
 ```
 
+---
 
 #### getValueFromArrayPath
 get the config value of the given array keyPath.     
@@ -78,6 +79,8 @@ $default = $configBag->getValueFromArrayPath('settings.default', 0);
 // $default = 0
 ```
 
+---
+
 #### getExplodedIntValue
 get the config value of the given key as `int[]`. The value is expected as separated numeric list
 ```php
@@ -111,6 +114,7 @@ $default = $configBag->getValueFromArrayPath('settings', ',');
 // $default = [1,3]
 ```
 
+---
 
 #### getExplodedIntValueFromArrayPath
 get the config value of the given array keyPath as `int[]`. The value is expected as separated numeric list

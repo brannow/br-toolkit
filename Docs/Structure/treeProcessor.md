@@ -65,6 +65,8 @@ $uid = $dataTreeObj->getPrimaryIdFromData($dataTreeObj->getData()[0]);
 // $uid = 1
 ```
 
+---
+
 #### getRelationIdFromData
 get the Relation Identifier for the given TreeItemData
 ```php
@@ -89,6 +91,8 @@ $pid = $dataTreeObj->getRelationIdFromData($dataTreeObj->getData()[0]);
 $pid = $dataTreeObj->getRelationIdFromData($dataTreeObj->getData()[1]);
 // $pid = 1
 ```
+
+---
 
 #### getData
 the entire dataset
@@ -140,6 +144,8 @@ $rootItems = $treeResult->getRootItems();
 // $rootItems = [TreeProcessorResultItem{data:['uid' => 1, 'pid' => 0]...}]
 ```
 
+---
+
 #### getItem
 get All Root Tree Items (all who has `NULL` Parents)
 ```php
@@ -164,6 +170,8 @@ $treeResult = $treeProcessorService->processTreeResult($treeData);
 $item = $treeResult->getItem(1);
 // $item = TreeProcessorResultItem{data:['uid' => 1, 'pid' => 0]...}
 ```
+
+---
 
 #### count
 count of all successful processed items in result
@@ -214,6 +222,8 @@ $item = $treeResult->getItem(1);
 $item->setData($updatedData);
 ```
 
+---
+
 #### getData
 get the current item data
 ```php
@@ -223,13 +233,14 @@ public function getData();
 ##### Return
 * `mixed` anything
 
-
 ##### Example
 ```php
 // ... Tree Processing stuff
 $item = $treeResult->getItem(1);
 $payloadData = $item->getData();
 ```
+
+---
 
 #### addChild
 relate children to the current item, this will also trigger setParent on the children.     
@@ -251,6 +262,8 @@ $r = ($item->getChildren()[0]->getParent() === $item);
 // $r = true
 ```
 
+---
+
 #### getChildren
 return all direct related children  
 ```php
@@ -268,6 +281,8 @@ $item->addChild($treeResult->getItem(2), $treeResult->getItem(3));
 $r = ($item->getChildren()[0]->getParent() === $item);
 // $r = true
 ```
+
+---
 
 #### getParent
 get the Parent of the current `TreeProcessorResultItemInterface`, if root element `NULL` returned
@@ -289,6 +304,8 @@ $parent = $item->getParent();
 // $parent = null
 ```
 
+---
+
 #### setParent
 set the Parent of the current `TreeProcessorResultItemInterface`. this will also trigger addChild for the given parent Item.    
 (spl_object_id(), to prevent endless loops between addChild and setParent)
@@ -309,8 +326,6 @@ $child->setParent($item);
 in_array($child, $item->getChildren(), true);
 // return true
 ```
-
----
 
 ### TreeProcessorResultGenerateInterface
 
@@ -338,6 +353,8 @@ $tree = new TreeProcessorResult();
 // id and pid in data is at this point not really important, but for the semantic :)
 $item = $tree->setItemData(1, ['id' => 1, 'pid' => 2, 'data' => 'value']);
 ```
+
+---
 
 #### getItem
 overrides the existing `getItem(int $id)` from `TreeProcessorResultInterface`, add new `$createIfNotExists` functionality

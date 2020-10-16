@@ -11,7 +11,7 @@ Curl Request/Response Data Abstraction (used in: `BR\Toolkit\Misc\Service\CurlSe
 
 ## Interfaces
 
-* `BR\Toolkit\Typo3\DTO\Curl\CurlRequestInterface`
+* [`BR\Toolkit\Typo3\DTO\Curl\CurlRequestInterface`](#curlrequestinterface)
 * [`BR\Toolkit\Typo3\DTO\Curl\CurlRequestDataInterface`](#curlrequestdatainterface)
 * [`BR\Toolkit\Typo3\DTO\Curl\CurlRequestOptionsInterface`](#curlrequestoptionsinterface)
 * [`BR\Toolkit\Typo3\DTO\Curl\CurlResponseInterface`](#curlresponseinterface)
@@ -56,6 +56,8 @@ $url = $request->getUrl();
 // $url == https://example?test=preset&key=value
 ```
 
+---
+
 #### setUrl
 sets the curl target url, this can include preset queries.
 ```php
@@ -75,11 +77,19 @@ $url = $request->getUrl();
 // $url == https://example
 ```
 
+---
+
 #### setMethod
 Set the Request HTTP_Method
 ```php
 public function setMethod(string $method): CurlRequestDataInterface;
 ```
+
+##### Arguments
+* `string $method` curl HTTP method (see: https://developer.mozilla.org/de/docs/Web/HTTP/Methods)
+
+##### Return
+* `BR\Toolkit\Typo3\DTO\Curl\CurlRequestDataInterface`
 
 ##### Example
 ```php
@@ -91,12 +101,7 @@ $method = $request->getMethod();
 // $method == POST
 ```
 
-##### Arguments
-* `string $method` curl HTTP method (see: https://developer.mozilla.org/de/docs/Web/HTTP/Methods)
-
-##### Return
-* `BR\Toolkit\Typo3\DTO\Curl\CurlRequestDataInterface`
-
+---
 
 #### getMethod
 Get the current Request HTTP_Method, default is `GET`
@@ -113,6 +118,8 @@ $request = new \BR\Toolkit\Misc\DTO\Curl\CurlRequest();
 $method = $request->getMethod();
 // $method == GET
 ```
+
+---
 
 #### isPost
 Check if this reuqest a post request, (check respects only the `Method`)
@@ -131,6 +138,8 @@ $isPost = $request->isPost();
 $isPost = $request->setMethod('POST')->isPost();
 // $isPost == TRUE
 ```
+
+---
 
 #### setQuery
 Add query data
@@ -157,6 +166,8 @@ $query = $request->getQuery();
 // $query == ['A' => 'B']
 ```
 
+---
+
 #### getQuery
 Get all given query data, this ignores any queryData directly set via `setUrl(string $url)`
 ```php
@@ -178,6 +189,8 @@ $query = $request->getQuery();
 // $query == ['A' => 'B']
 ```
 
+---
+
 #### getQueryString
 Generate URL-encoded query string for the given query data
 ```php
@@ -196,6 +209,8 @@ $request->setQuery('A', 'B')
 $queryString = $request->getQueryString();
 // $queryString == 'A=B&C=D'
 ```
+
+---
 
 #### setData
 Add post data
@@ -219,6 +234,8 @@ $data = $request->getData();
 // $data == ['A' => 'B']
 ```
 
+---
+
 #### getData
 Get all given post data
 ```php
@@ -236,6 +253,8 @@ $request->setData('A', 'B');
 $data = $request->getData();
 // $data == ['A' => 'B']
 ```
+
+---
 
 #### getDataString
 Generate URL-encoded string for the given post data 
@@ -283,6 +302,8 @@ $options = $request->getOptions();
 // $options = [52 => 5, 68 => 5]
 ```
 
+---
+
 #### setOption
 set a curl Option (see: https://www.php.net/manual/en/function.curl-setopt.php)
 ```php
@@ -307,6 +328,7 @@ Curl Response can be a success or failed request
 * [getData](#getdata)
 
 
+
 #### isError
 if the Curl-Request failed return true, otherwise false.
 ```php
@@ -326,6 +348,8 @@ if ($response->isError()) {
     throw new \Exception('curl failed');
 }
 ```
+
+---
 
 #### getError
 if the Curl-Request failed return the curl error message, otherwise empty string.
@@ -347,6 +371,8 @@ if ($response->isError()) {
 }
 ```
 
+---
+
 #### getArrayDataFromJson
 if the Responsed data json based this will decode the data into a assoc array
 ```php
@@ -363,6 +389,8 @@ $request = $curlService->getCurlRequest('https://example', 'GET');
 $response = $curlService->execute($request);
 $arrayResponse = $response->getArrayDataFromJson();
 ```
+
+---
 
 #### getData
 get the Response data as string

@@ -91,7 +91,7 @@ $route = Route::createRoute(TestController::class, 'someAction', '/api/something
 $result = $route->match($request);
 // $result = false
 ```
-
+---
 #### getControllerCallable
 get a `callable` from the configurated class + method.
 ```php
