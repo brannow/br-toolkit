@@ -66,6 +66,7 @@ class EnumTest extends TestCase
     {
         $this->assertTrue(is_float(TestEnumClass::sanitize('1', '0')));
         $this->assertSame(1.0, TestEnumClass::sanitize(1, '0'));
+        $this->assertSame('0', TestEnumClass::sanitize('1.0', '0'));
         $this->assertSame(1.0, TestEnumClass::sanitize('1', '0'));
         $this->assertSame('0', TestEnumClass::sanitize('5', '0'));
         $this->assertSame(TestEnumClass::TEST_F, TestEnumClass::sanitize(TestEnumClass::TEST_F, '0'));

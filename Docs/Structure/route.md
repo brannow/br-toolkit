@@ -14,7 +14,6 @@ Used in `proteced function getRouting(): array;`
 #### createRoute
 creates a route,
 
-
 ```php
 public static function createRoute(
     string $controller, 

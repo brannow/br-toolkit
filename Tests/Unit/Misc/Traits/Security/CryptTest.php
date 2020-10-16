@@ -3,12 +3,12 @@
 namespace BR\Toolkit\Tests\Misc\Traits\Security;
 
 
-use BR\Toolkit\Misc\Traits\Security\Crypt;
+use BR\Toolkit\Misc\Traits\Security\CryptTrait;
 use PHPUnit\Framework\TestCase;
 
 class CryptBridge
 {
-    use Crypt;
+    use CryptTrait;
 
     /**
      * @param string $content
