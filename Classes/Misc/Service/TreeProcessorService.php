@@ -48,7 +48,7 @@ class TreeProcessorService
             $item = $tree->setItemData($id, $itemData);
 
             // create relation
-            if ($rid >= 0) {
+            if ($rid > 0) {
                 $parentItem = $tree->getItem($rid, true);
                 // be aware this will create a cyclic object references structure
                 $parentItem->addChild($item);
