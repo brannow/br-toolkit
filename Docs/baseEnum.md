@@ -94,8 +94,8 @@ class MyEnum extends \BR\Toolkit\Misc\Enum\BaseEnum
     public const ENUM_C = 'a';
 }
 
-MyEnum::validate(0); // true
-MyEnum::validate('1'); // true
-MyEnum::validate('a'); // true
-MyEnum::validate('1.0'); // false
+MyEnum::sanitize(0, 1);         // return: '0'
+MyEnum::sanitize('1', 0);       // return: 1.0
+MyEnum::sanitize('a', '');      // return: 'a'
+MyEnum::sanitize('1.0', 0.0);   // return: 0.0
 ```
