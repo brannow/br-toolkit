@@ -3,7 +3,7 @@
 
 namespace BR\Toolkit\Misc\Traits\Security;
 
-trait Crypt
+trait CryptTrait
 {
     private static $CYPHER = 'aes-128-gcm';
     private static $TAG_LEN = 4;

@@ -3,35 +3,37 @@
 namespace BR\Toolkit\Tests\Misc\Traits\Security;
 
 
-use BR\Toolkit\Misc\Traits\Security\Crypt;
+use BR\Toolkit\Misc\Traits\Security\CryptTrait;
 use PHPUnit\Framework\TestCase;
 
 class CryptBridge
 {
-    use Crypt;
+    use CryptTrait;
 
     /**
      * @param string $content
      * @param string $secret
+     * @param string $salt
      * @return string
      */
-    public static function _encrypt(string $content, string $secret): string
+    public static function _encrypt(string $content, string $secret, string $salt = ''): string
     {
-        return static::encrypt($content, $secret);
+        return static::encrypt($content, $secret, $salt);
     }
 
     /**
      * @param string $data
      * @param string $secret
-     * @return string
+     * @param string $salt
+     * @return string|null
      */
-    public static function _decrypt(string $data, string $secret): ?string
+    public static function _decrypt(string $data, string $secret, string $salt = ''): ?string
     {
-        return static::decrypt($data, $secret);
+        return static::decrypt($data, $secret, $salt);
     }
 }
 
-class CryptTest extends TestCase
+class CryptTraitTest extends TestCase
 {
     /**
      * @test
@@ -81,6 +83,26 @@ class CryptTest extends TestCase
             $recover = CryptBridge::_decrypt($str, $secret);
             $this->assertEquals($base, $recover);
         }
+    }
+
+    public function testDecryptWithSalt()
+    {
+        $salt = 'salt';
+        $secret = 'superSecret';
+        for ($i = 0; $i < 100; $i++) {
+            $base = str_pad('1', $i, '1');
+            $str = CryptBridge::_encrypt($base, $secret, $salt.$i);
+            $recover = CryptBridge::_decrypt($str, $secret, $salt.$i);
+            $this->assertSame($base, $recover);
+        }
+    }
+
+    public function testDecryptWithSaltFailed()
+    {
+        $text = 'test';
+        $str = CryptBridge::_encrypt($text, 'secret', 'saltA');
+        $recover = CryptBridge::_decrypt($str, 'secret', 'saltB');
+        $this->assertNull($recover);
     }
 
     public function testDecryptMismatchSecret()

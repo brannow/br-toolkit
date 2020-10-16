@@ -53,9 +53,9 @@ class Route implements RouteInterface, RequestInjectInterface
      * @param string $action
      * @param string $uri
      * @param array $method
-     * @return Route
+     * @return RouteInterface
      */
-    public static function createRoute(string $controller, string $action, string $uri, array $method = []): Route
+    public static function createRoute(string $controller, string $action, string $uri, array $method = []): RouteInterface
     {
         return new static($controller, $action, $uri, $method);
     }
@@ -74,7 +74,7 @@ class Route implements RouteInterface, RequestInjectInterface
      */
     public function match(ServerRequestInterface $request): bool
     {
-        if (stripos($request->getUri()->getPath(), $this->uri) !== 0) {
+        if (strtolower($request->getUri()->getPath()) !== strtolower($this->uri)) {
             return false;
         }
 

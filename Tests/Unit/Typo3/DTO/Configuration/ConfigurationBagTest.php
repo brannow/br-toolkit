@@ -39,6 +39,15 @@ class ConfigurationBagTest extends TestCase
         $this->assertSame([5,6,7], $bag->getExplodedIntValue('key', '|'));
     }
 
+    public function testGetExplodedIntValueConfigPartialInvalid()
+    {
+        $bag = new ConfigurationBag(['key' => '1,2,a,4']);
+        $this->assertSame([1,2,4], $bag->getExplodedIntValue('key'));
+
+        $bag = new ConfigurationBag(['key' => 'false|6|7']);
+        $this->assertSame([6,7], $bag->getExplodedIntValue('key', '|'));
+    }
+
     public function testGetExplodedIntValueNonNumberConfig()
     {
         $bag = new ConfigurationBag(['key' => 'a,v,x']);
