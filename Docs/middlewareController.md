@@ -5,11 +5,28 @@ use this as Foundation for every Middleware Controller that will be used in [`Re
 #### Interfaces
 
 * `\BR\Toolkit\Typo3\Controller\MiddlewareControllerInterface`
+* `\BR\Toolkit\Typo3\Controller\JsonAwareControllerInterface`
 * `\BR\Toolkit\Typo3\DTO\RequestInjectInterface`
 
 #### RequestInjectInterface
 
 Allows the Middleware to inject the current request into the controller
+
+#### JsonAwareControllerInterface
+
+Add this to your Controller 
+```php
+class ExampleAjaxController extends MiddlewareController implements JsonAwareControllerInterface
+{
+    public function exampleAction(): array 
+    {
+        return ['hello' => 'world'];
+    }
+}
+```
+
+the middleware will check if the action return value is an array AND if the `JsonAwareControllerInterface` is implemented.
+if both present the output will be a json_response
 
 ##### Methods
 
