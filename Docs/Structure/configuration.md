@@ -12,10 +12,29 @@ used for easy Typo3 Configuration Loading (see: `BR\Toolkit\Typo3\Configuration\
 
 ### ConfigurationBagInterface
 
+* [getData](#getdata)
 * [getValue](#getvalue)
 * [getValueFromArrayPath](#getvaluefromarraypath)
 * [getExplodedIntValue](#getexplodedintvalue)
 * [getExplodedIntValueFromArrayPath](#getexplodedintvaluefromarraypath)
+
+#### getData
+get All data
+```php
+public function getData(): array
+```
+
+##### Return
+ * `array`
+ 
+##### Example
+```php
+$configBag = new \BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBag(['name' => 'test']);
+$data = $configBag->getData();
+// $data === ['name' => 'test'] // true
+```
+
+---
 
 #### getValue
 get the config value of the given key.
