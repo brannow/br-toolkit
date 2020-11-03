@@ -3,6 +3,7 @@
 namespace BR\Toolkit\Tests\Typo3\Middleware;
 
 use BR\Toolkit\Exceptions\RoutingException;
+use BR\Toolkit\Typo3\Controller\JsonAwareControllerInterface;
 use BR\Toolkit\Typo3\Controller\MiddlewareController;
 use BR\Toolkit\Typo3\DTO\Route;
 use BR\Toolkit\Typo3\Middleware\RequestRoutingMiddleware;
@@ -12,6 +13,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Http\HtmlResponse;
+use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\NullResponse;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Http\Stream;
@@ -34,7 +36,7 @@ class MiddlewareStub extends RequestRoutingMiddleware
     }
 }
 
-class ControllerStub extends MiddlewareController
+class ControllerStub extends MiddlewareController implements JsonAwareControllerInterface
 {
     public static $response = null;
 
@@ -145,6 +147,14 @@ class RequestRoutingMiddlewareTest extends TestCase
                 1,
                 RoutingException::class
             ],
+            [
+                ControllerStub::class,
+                'existsAction',
+                '/test/exists',
+                [],
+                ['test' => 'json'],
+                JsonResponse::class
+            ],
         ];
     }
 
@@ -155,20 +165,20 @@ class RequestRoutingMiddlewareTest extends TestCase
      * @param string $uri
      * @param array $methods
      * @param $response
-     * @param string $responseClassException
+     * @param string $responseClassExpectation
      * @throws \BR\Toolkit\Exceptions\RoutingException
      */
-    public function testRouteSuccess(string $class, string $action, string $uri, array $methods, $response, string $responseClassException)
+    public function testRouteSuccess(string $class, string $action, string $uri, array $methods, $response, string $responseClassExpectation)
     {
-        if ($responseClassException === RoutingException::class) {
-            $this->expectException($responseClassException);
+        if ($responseClassExpectation === RoutingException::class) {
+            $this->expectException($responseClassExpectation);
         }
 
         ControllerStub::$response = $response;
         $route = Route::createRoute($class, $action, $uri, $methods);
         $this->middleware->setRouting([$route]);
         $result = $this->middleware->process($this->request, $this->handler);
-        $this->assertInstanceOf($responseClassException, $result);
+        $this->assertInstanceOf($responseClassExpectation, $result);
     }
 
     /**

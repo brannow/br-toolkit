@@ -3,6 +3,7 @@
 namespace BR\Toolkit\Typo3\Middleware;
 
 use BR\Toolkit\Exceptions\RoutingException;
+use BR\Toolkit\Typo3\Controller\JsonAwareControllerInterface;
 use BR\Toolkit\Typo3\DTO\RequestInjectInterface;
 use BR\Toolkit\Typo3\DTO\RouteInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -11,6 +12,7 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Http\HtmlResponse;
+use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\NullResponse;
 use TYPO3\CMS\Core\Http\Response;
 
@@ -63,7 +65,14 @@ abstract class RequestRoutingMiddleware implements MiddlewareInterface
      */
     protected function processController(RouteInterface $route)
     {
-        return ($route->getControllerCallable())();
+        $callable = $route->getControllerCallable();
+        $result = ($callable)();
+
+        if ($callable[0] instanceof JsonAwareControllerInterface && is_array($result)) {
+            return new JsonResponse($result);
+        }
+
+        return $result;
     }
 
     /**

@@ -2,7 +2,7 @@
 
 namespace BR\Toolkit\Typo3\Controller;
 
-interface MiddlewareControllerInterface
+interface JsonAwareControllerInterface
 {
 
 }
