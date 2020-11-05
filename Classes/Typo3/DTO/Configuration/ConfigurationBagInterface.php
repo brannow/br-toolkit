@@ -5,6 +5,11 @@ namespace BR\Toolkit\Typo3\DTO\Configuration;
 interface ConfigurationBagInterface
 {
     /**
+     * @return array
+     */
+    public function getData(): array;
+
+    /**
      * @param string $key
      * @param string $default
      * @return mixed

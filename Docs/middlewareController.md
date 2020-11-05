@@ -2,15 +2,16 @@
 
 use this as Foundation for every Middleware Controller that will be used in [`RequesrRoutingMiddleware:getRouting()`](/Docs/requestRoutingMiddleware.md)
 
+the middleware controller is called by the middleware, not the middleware itself.   
+see: [`RequesrRoutingMiddleware`](/Docs/requestRoutingMiddleware.md) as the actual middleware processor
+
 #### Interfaces
 
 * `\BR\Toolkit\Typo3\Controller\MiddlewareControllerInterface`
 * `\BR\Toolkit\Typo3\Controller\JsonAwareControllerInterface`
 * `\BR\Toolkit\Typo3\DTO\RequestInjectInterface`
 
-#### RequestInjectInterface
-
-Allows the Middleware to inject the current request into the controller
+--- 
 
 #### JsonAwareControllerInterface
 
@@ -27,6 +28,13 @@ class ExampleAjaxController extends MiddlewareController implements JsonAwareCon
 
 the middleware will check if the action return value is an array AND if the `JsonAwareControllerInterface` is implemented.
 if both present the output will be a json_response
+
+---
+
+#### RequestInjectInterface
+
+Allows the Middleware to inject the current request into the controller
+
 
 ##### Methods
 

@@ -23,6 +23,19 @@ class ConfigurationBagTest extends TestCase
         $this->assertSame('success', $bag->getValue('key'));
     }
 
+    public function testGetDataConfig()
+    {
+        $rawData = ['key' => 'success', 'a' => 1];
+        $bag = new ConfigurationBag($rawData);
+        $this->assertSame($rawData, $bag->getData());
+    }
+
+    public function testGetDataConfigEmpty()
+    {
+        $bag = new ConfigurationBag([]);
+        $this->assertEmpty($bag->getData());
+    }
+
     public function testGetValueFromArrayPathConfig()
     {
         $bag = new ConfigurationBag(['key' => ['sub' => 'success']]);

@@ -20,6 +20,14 @@ class ConfigurationBag implements ConfigurationBagInterface
     }
 
     /**
+     * @return array
+     */
+    public function getData(): array
+    {
+        return $this->bag;
+    }
+
+    /**
      * @param string $key
      * @param string $default
      * @return mixed
