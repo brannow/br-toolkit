@@ -15,6 +15,7 @@ use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\NullResponse;
 use TYPO3\CMS\Core\Http\Response;
+use Throwable;
 
 abstract class RequestRoutingMiddleware implements MiddlewareInterface
 {
@@ -27,7 +28,7 @@ abstract class RequestRoutingMiddleware implements MiddlewareInterface
      * @param ServerRequestInterface $request
      * @param RequestHandlerInterface $handler
      * @return ResponseInterface
-     * @throws RoutingException
+     * @throws Throwable
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
@@ -61,12 +62,22 @@ abstract class RequestRoutingMiddleware implements MiddlewareInterface
     /**
      * @param RouteInterface $route
      * @return mixed
-     * @throws RoutingException
+     * @throws Throwable
      */
     protected function processController(RouteInterface $route)
     {
         $callable = $route->getControllerCallable();
-        $result = ($callable)();
+
+        // execute Controller action and listen for exceptions
+        try {
+            $result = ($callable)();
+        } catch (Throwable $exception) {
+            // check if exception can be handled
+            if (!$this->canHandleException($exception)) {
+                throw $exception;
+            }
+            $result = $this->handleException($exception);
+        }
 
         if ($callable[0] instanceof JsonAwareControllerInterface && is_array($result)) {
             return new JsonResponse($result);
@@ -93,5 +104,24 @@ abstract class RequestRoutingMiddleware implements MiddlewareInterface
         }
 
         throw new RoutingException('unexpected controller response', 1000);
+    }
+
+    /**
+     * override to custom handle exceptions
+     * @param Throwable $exception
+     * @return bool
+     */
+    protected function canHandleException(Throwable $exception): bool
+    {
+        return false;
+    }
+
+    /**
+     * @param Throwable $exception
+     * @return NullResponse
+     */
+    protected function handleException(Throwable $exception)
+    {
+        return new NullResponse();
     }
 }
