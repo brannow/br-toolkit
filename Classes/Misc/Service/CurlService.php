@@ -69,10 +69,6 @@ class CurlService
         $this->curlAdapter->curlSetOpt($this->connection, CURLOPT_URL, $request->getUrl());
         $this->curlAdapter->curlSetOpt($this->connection, CURLOPT_POST, $request->isPost());
         $this->curlAdapter->curlSetOpt($this->connection, CURLOPT_POSTFIELDS, $request->getDataString());
-        $this->curlAdapter->curlSetOpt($this->connection, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Content-Length: ' . strlen($request->getDataString())
-        ]);
 
         $data = $this->curlAdapter->curlExec($this->connection);
         $header = $this->curlAdapter->curlGetInfo($this->connection);
