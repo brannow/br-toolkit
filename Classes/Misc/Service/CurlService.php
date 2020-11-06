@@ -70,10 +70,10 @@ class CurlService
         $this->curlAdapter->curlSetOpt($this->connection, CURLOPT_POST, $request->isPost());
         $this->curlAdapter->curlSetOpt($this->connection, CURLOPT_POSTFIELDS, $request->getDataString());
 
-        $data = $this->curlAdapter->curlExec($this->connection);
-        $header = $this->curlAdapter->curlGetInfo($this->connection);
-        $error = $this->curlAdapter->curlError($this->connection);
-        $errno = $this->curlAdapter->curlErrno($this->connection);
+        $data = (string)$this->curlAdapter->curlExec($this->connection);
+        $header = (array)$this->curlAdapter->curlGetInfo($this->connection);
+        $error = (string)$this->curlAdapter->curlError($this->connection);
+        $errno = (int)$this->curlAdapter->curlErrno($this->connection);
 
         return new CurlResponse($data, $header, $error, $errno);
     }
