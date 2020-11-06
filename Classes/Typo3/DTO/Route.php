@@ -74,7 +74,7 @@ class Route implements RouteInterface, RequestInjectInterface
      */
     public function match(ServerRequestInterface $request): bool
     {
-        if (strtolower($request->getUri()->getPath()) !== strtolower($this->uri)) {
+        if ($request->getUri() === null || strtolower($request->getUri()->getPath()) !== strtolower($this->uri)) {
             return false;
         }
 
