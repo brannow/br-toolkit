@@ -96,6 +96,10 @@ abstract class IntegrationMockUtility
         $arg = [];
         foreach($methodRef->getParameters() AS $argumentRef) {
             $class = $argumentRef->getClass();
+            if ($class === null) {
+                continue;
+            }
+
             $subClassName = $class->getName();
             if (!empty($subClassName)) {
                 $arg[] = self::initClassNameWithDependencies($testCase, $subClassName, $mockList);
