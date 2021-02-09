@@ -4,10 +4,14 @@ os: linux
 
 jobs:
   include:
+    - php: 7.1
+      env: TYPO3_VERSION=9.5 COVERAGE=1
     - php: 7.2
       env: TYPO3_VERSION=9.5 COVERAGE=1
     - php: 7.3
       env: TYPO3_VERSION=9.5 COVERAGE=1
+    - php: 7.4
+      env: TYPO3_VERSION=10.4 COVERAGE=1
 
 cache:
   directories:
