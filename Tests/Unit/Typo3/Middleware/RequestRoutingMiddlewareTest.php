@@ -113,7 +113,7 @@ class RequestRoutingMiddlewareTest extends TestCase
      */
     private $middleware;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         MiddlewareStub::$canHandleException = false;
         ControllerStub::$throwException = false;

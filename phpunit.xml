@@ -21,9 +21,9 @@
         <testsuite name="Unit Tests">
             <directory>Tests/Unit</directory>
         </testsuite>
-        <testsuite name="Integration Tests">
+        <!--testsuite name="Integration Tests">
             <directory>Tests/Integration</directory>
-        </testsuite>
+        </testsuite-->
     </testsuites>
 
     <filter>

@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class ConfigurationHandlerTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $config = [
             'version' => '1.0',
