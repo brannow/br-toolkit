@@ -4,8 +4,8 @@ namespace BR\Toolkit\Typo3\Configuration;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBag;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBagInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Object\Exception;
 
 class ConfigurationHandler
@@ -24,6 +24,20 @@ class ConfigurationHandler
     private static $typoScriptRuntimeCache = [];
 
     /**
+     * @var ConfigurationManagerInterface
+     */
+    private $configurationManager;
+
+    /**
+     * ConfigurationHandler constructor.
+     * @param ConfigurationManagerInterface $configurationManager
+     */
+    public function __construct(ConfigurationManagerInterface $configurationManager = null)
+    {
+        $this->configurationManager = $configurationManager??GeneralUtility::makeInstance(ConfigurationManagerInterface::class);
+    }
+
+    /**
      * @param string $extName
      * @return ConfigurationBagInterface
      */
@@ -40,7 +54,7 @@ class ConfigurationHandler
      * @param string $extName
      * @return ConfigurationBagInterface
      */
-    public function getExtensionSetting(string $extName): ConfigurationBagInterface
+    public function getExtensionTypoScript(string $extName): ConfigurationBagInterface
     {
         if (!isset(self::$bagCache[$extName][self::TYPE_TS])) {
             self::$bagCache[$extName][self::TYPE_TS] = new ConfigurationBag($this->getTypoScriptConfigForExtension($extName));
@@ -70,13 +84,9 @@ class ConfigurationHandler
      */
     private function getTypoScriptConfigForExtension(string $extName): array
     {
-        if (empty(self::$typoScriptRuntimeCache)) {
+        if (empty(self::$typoScriptRuntimeCache) && $this->configurationManager) {
             try {
-                /** @var ObjectManager $om */
-                $om = GeneralUtility::makeInstance(ObjectManager::class);
-                /** @var ConfigurationManagerInterface $configurationManager */
-                $configurationManager = $om->get(ConfigurationManagerInterface::class);
-                self::$typoScriptRuntimeCache = GeneralUtility::removeDotsFromTS($configurationManager->getConfiguration(
+                self::$typoScriptRuntimeCache = GeneralUtility::removeDotsFromTS($this->configurationManager->getConfiguration(
                     ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
                 ));
             } catch (Exception $exception) {}
@@ -92,5 +102,4 @@ class ConfigurationHandler
             'plugin' => self::$typoScriptRuntimeCache['plugin'][$extensionName]??[]
         ];
     }
-
 }
