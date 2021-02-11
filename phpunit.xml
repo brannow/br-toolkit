@@ -13,7 +13,7 @@
     <php>
         <ini name="error_reporting" value="-1" />
         <env name="APP_ENV" value="test" />
-        <env name="TYPO3_CONTEXT" value="test" />
+        <env name="TYPO3_CONTEXT" value="Testing" />
         <env name="APP_SECRET" value="TESTING_SECRET" />
     </php>
 
