@@ -3,8 +3,8 @@ namespace BR\Toolkit\Typo3\Configuration;
 
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBag;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBagInterface;
+use BR\Toolkit\Typo3\VersionWrapper\InstanceUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Object\Exception;
 
@@ -34,7 +34,7 @@ class ConfigurationHandler
      */
     public function __construct(ConfigurationManagerInterface $configurationManager = null)
     {
-        $this->configurationManager = $configurationManager??GeneralUtility::makeInstance(ConfigurationManagerInterface::class);
+        $this->configurationManager = $configurationManager??InstanceUtility::get(ConfigurationManagerInterface::class);
     }
 
     /**

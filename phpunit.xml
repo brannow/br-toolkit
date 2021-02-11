@@ -33,6 +33,7 @@
                 <directory>Classes/Interfaces</directory>
                 <directory>Classes/Misc/Native</directory>
                 <directory>Classes/PHPUnit</directory>
+                <directory>Classes/Typo3/VersionWrapper</directory>
             </exclude>
         </whitelist>
     </filter>

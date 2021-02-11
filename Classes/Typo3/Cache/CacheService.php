@@ -7,11 +7,11 @@ namespace BR\Toolkit\Typo3\Cache;
 use BR\Toolkit\Exceptions\CacheException;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBag;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBagInterface;
+use BR\Toolkit\Typo3\VersionWrapper\InstanceUtility;
 use TYPO3\CMS\Core\Cache\CacheManager as Typo3CacheManager;
 use TYPO3\CMS\Core\Cache\Exception;
 use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Cache\Backend\BackendInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class CacheService implements CacheServiceInterface
 {
@@ -47,10 +47,7 @@ class CacheService implements CacheServiceInterface
     public function __construct(Typo3CacheManager $typo3CacheManager = null)
     {
         try {
-            if (!$typo3CacheManager) {
-                $typo3CacheManager = GeneralUtility::makeInstance(Typo3CacheManager::class);
-            }
-
+            $typo3CacheManager = $typo3CacheManager??InstanceUtility::get(Typo3CacheManager::class);
             $this->cacheInstance = $typo3CacheManager->getCache(CacheManager::CACHE_DOMAIN)->getBackend();
         } catch (NoSuchCacheException $e) {}
     }

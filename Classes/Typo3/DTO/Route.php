@@ -4,10 +4,8 @@ namespace BR\Toolkit\Typo3\DTO;
 
 use BR\Toolkit\Exceptions\RoutingException;
 use BR\Toolkit\Typo3\Controller\MiddlewareControllerInterface;
+use BR\Toolkit\Typo3\VersionWrapper\InstanceUtility;
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 
 class Route implements RouteInterface, RequestInjectInterface
 {
@@ -110,7 +108,7 @@ class Route implements RouteInterface, RequestInjectInterface
             throw new RoutingException('class \''. $this->controller .'\' not exists');
         }
         /** @var MiddlewareControllerInterface processingController */
-        $controllerInstance = GeneralUtility::makeInstance($this->controller);
+        $controllerInstance = InstanceUtility::get($this->controller);
         if ($controllerInstance instanceof RequestInjectInterface) {
             $controllerInstance->setRequest($this->request);
         }
