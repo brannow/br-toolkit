@@ -18,7 +18,7 @@ class CurlServiceTest extends TestCase
      */
     private $curlMock;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->curlMock = $this->getMockBuilder(Curl::class)->getMock();
         $this->service = new CurlService($this->curlMock);

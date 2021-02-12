@@ -1,0 +1,9 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: true
+
+  BR\Toolkit\:
+    resource: '../Classes/*'
+    exclude: ['../Classes/{Misc/DTO,Typo3/DTO,PHPUnit,Exceptions}']

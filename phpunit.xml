@@ -13,7 +13,7 @@
     <php>
         <ini name="error_reporting" value="-1" />
         <env name="APP_ENV" value="test" />
-        <env name="TYPO3_CONTEXT" value="test" />
+        <env name="TYPO3_CONTEXT" value="Testing" />
         <env name="APP_SECRET" value="TESTING_SECRET" />
     </php>
 
@@ -21,9 +21,9 @@
         <testsuite name="Unit Tests">
             <directory>Tests/Unit</directory>
         </testsuite>
-        <testsuite name="Integration Tests">
+        <!--testsuite name="Integration Tests">
             <directory>Tests/Integration</directory>
-        </testsuite>
+        </testsuite-->
     </testsuites>
 
     <filter>
@@ -33,6 +33,7 @@
                 <directory>Classes/Interfaces</directory>
                 <directory>Classes/Misc/Native</directory>
                 <directory>Classes/PHPUnit</directory>
+                <directory>Classes/Typo3/VersionWrapper</directory>
             </exclude>
         </whitelist>
     </filter>
