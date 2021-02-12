@@ -23,6 +23,10 @@
 
 * [MiddlewareController](/Docs/middlewareController.md)
 
+### TYPO3 / Caching
+
+* [CachingService](/Docs/caching.md)
+
 ### TYPO3 / Middleware
 
 * [RequestRoutingMiddleware](/Docs/requestRoutingMiddleware.md)
