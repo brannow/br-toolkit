@@ -12,6 +12,7 @@ class ConfigurationHandler
 {
     private const TYPE_EXT = 'ext';
     private const TYPE_TS = 'ts';
+    private const TYPE_GLOBAL_TS = '#global#ts#';
 
     /**
      * @var ConfigurationBagInterface[][]
@@ -64,6 +65,18 @@ class ConfigurationHandler
     }
 
     /**
+     * @return ConfigurationBagInterface
+     */
+    public function getGlobalTypoScript(): ConfigurationBagInterface
+    {
+        if (!isset(self::$bagCache[self::TYPE_GLOBAL_TS][self::TYPE_TS])) {
+            self::$bagCache[self::TYPE_GLOBAL_TS][self::TYPE_TS] = new ConfigurationBag($this->getTypoScriptConfig());
+        }
+
+        return self::$bagCache[self::TYPE_GLOBAL_TS][self::TYPE_TS];
+    }
+
+    /**
      * @param string $extName
      * @return array
      */
@@ -77,12 +90,7 @@ class ConfigurationHandler
         return $settings;
     }
 
-    /**
-     * @param string $extName
-     * @return array
-     * @throws
-     */
-    private function getTypoScriptConfigForExtension(string $extName): array
+    private function getTypoScriptConfig(): array
     {
         if (empty(self::$typoScriptRuntimeCache) && $this->configurationManager) {
             try {
@@ -92,14 +100,25 @@ class ConfigurationHandler
             } catch (Exception $exception) {}
         }
 
+        return self::$typoScriptRuntimeCache;
+    }
+
+    /**
+     * @param string $extName
+     * @return array
+     * @throws
+     */
+    private function getTypoScriptConfigForExtension(string $extName): array
+    {
         $extensionName = str_replace([' ', '_', '-'], '', strtolower($extName));
         if (strpos($extensionName, 'tx_') === false) {
             $extensionName = 'tx_' . $extensionName;
         }
 
+        $config = $this->getTypoScriptConfig();
         return [
-            'module' => self::$typoScriptRuntimeCache['module'][$extensionName]??[],
-            'plugin' => self::$typoScriptRuntimeCache['plugin'][$extensionName]??[]
+            'module' => $config['module'][$extensionName]??[],
+            'plugin' => $config['plugin'][$extensionName]??[]
         ];
     }
 }
