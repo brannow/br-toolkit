@@ -25,17 +25,22 @@ class ConfigurationHandler
     private static $typoScriptRuntimeCache = [];
 
     /**
+     * @var array
+     */
+    private static $configRuntimeCache = [];
+
+    /**
      * @var ConfigurationManagerInterface
      */
     private $configurationManager;
 
     /**
      * ConfigurationHandler constructor.
-     * @param ConfigurationManagerInterface $configurationManager
+     * @param ConfigurationManagerInterface|null $configurationManager
      */
     public function __construct(ConfigurationManagerInterface $configurationManager = null)
     {
-        $this->configurationManager = $configurationManager??InstanceUtility::get(ConfigurationManagerInterface::class);
+        $this->configurationManager = $configurationManager ?? InstanceUtility::get(ConfigurationManagerInterface::class);
     }
 
     /**
@@ -82,14 +87,49 @@ class ConfigurationHandler
      */
     private function getGlobalConfigurationForExtension(string $extName): array
     {
-        $settings = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$extName]??'');
-        if (!$settings) {
-            return [];
+        if (empty(self::$configRuntimeCache)) {
+            self::$configRuntimeCache = $this->computeConfigurationFiles();
         }
 
-        return $settings;
+        return self::$configRuntimeCache[$extName]??[];
     }
 
+    /**
+     *
+     */
+    private function computeConfigurationFiles(): array
+    {
+        if (!isset($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'])) {
+            // load local and additional
+            return $this->loadConfigFiles();
+        }
+
+        return $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'];
+    }
+
+    /**
+     * @return array
+     */
+    private function loadConfigFiles(): array
+    {
+        $confPath = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'typo3conf';
+        $localConfig = $confPath . DIRECTORY_SEPARATOR . 'LocalConfiguration.php';
+        if (file_exists($localConfig)) {
+            $config = require $localConfig;
+            $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'] = $config['EXTENSIONS']??[];
+
+            $additionConfig = $confPath . DIRECTORY_SEPARATOR . 'AdditionalConfiguration.php';
+            if (file_exists($additionConfig)) {
+                require $additionConfig;
+            }
+        }
+
+        return $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'];
+    }
+
+    /**
+     * @return array
+     */
     private function getTypoScriptConfig(): array
     {
         if (empty(self::$typoScriptRuntimeCache) && $this->configurationManager) {

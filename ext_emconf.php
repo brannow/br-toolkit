@@ -1,6 +1,6 @@
 <?php
 
-$EM_CONF[$_EXTKEY] = [
+$EM_CONF['br_toolkit'] = [
     'title' => 'BR ToolKit',
     'description' => 'Generic Quality of Life Library of Modules/Code',
     'category' => 'misc',
@@ -14,7 +14,7 @@ $EM_CONF[$_EXTKEY] = [
     'version' => '0.0.1',
     'constraints' => [
       'depends' => [
-        'typo3' => '9.5.0-9.5.99'
+        'typo3' => '9.5.0-10.4.99'
       ],
       'conflicts' => [],
       'suggests' => []
