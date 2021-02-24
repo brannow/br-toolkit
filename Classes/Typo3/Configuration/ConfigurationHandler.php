@@ -91,7 +91,11 @@ class ConfigurationHandler
             self::$configRuntimeCache = $this->computeConfigurationFiles();
         }
 
-        return self::$configRuntimeCache[$extName]??[];
+        if (!empty(self::$configRuntimeCache[$extName])) {
+            return unserialize(self::$configRuntimeCache[$extName]);
+        }
+        
+        return [];
     }
 
     /**
