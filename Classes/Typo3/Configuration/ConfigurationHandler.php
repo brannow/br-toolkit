@@ -91,11 +91,7 @@ class ConfigurationHandler
             self::$configRuntimeCache = $this->computeConfigurationFiles();
         }
 
-        if (!empty(self::$configRuntimeCache[$extName])) {
-            return unserialize(self::$configRuntimeCache[$extName]);
-        }
-        
-        return [];
+        return (array)(self::$configRuntimeCache[$extName]??[]);
     }
 
     /**
@@ -108,7 +104,15 @@ class ConfigurationHandler
             return $this->loadConfigFiles();
         }
 
-        return $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'];
+        $data = [];
+        foreach ($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'] as $extKey => $value) {
+            $v = unserialize($value);
+            if ($v !== false) {
+                $data[$extKey] = $v;
+            }
+        }
+
+        return $data;
     }
 
     /**
