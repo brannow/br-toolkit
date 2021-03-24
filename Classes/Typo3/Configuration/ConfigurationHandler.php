@@ -4,6 +4,7 @@ namespace BR\Toolkit\Typo3\Configuration;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBag;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBagInterface;
 use BR\Toolkit\Typo3\VersionWrapper\InstanceUtility;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Object\Exception;
@@ -12,6 +13,7 @@ class ConfigurationHandler
 {
     private const TYPE_EXT = 'ext';
     private const TYPE_TS = 'ts';
+    private const TYPE_GLOBAL_TS = '#global#ts#';
 
     /**
      * @var ConfigurationBagInterface[][]
@@ -24,17 +26,22 @@ class ConfigurationHandler
     private static $typoScriptRuntimeCache = [];
 
     /**
+     * @var array
+     */
+    private static $configRuntimeCache = [];
+
+    /**
      * @var ConfigurationManagerInterface
      */
     private $configurationManager;
 
     /**
      * ConfigurationHandler constructor.
-     * @param ConfigurationManagerInterface $configurationManager
+     * @param ConfigurationManagerInterface|null $configurationManager
      */
     public function __construct(ConfigurationManagerInterface $configurationManager = null)
     {
-        $this->configurationManager = $configurationManager??InstanceUtility::get(ConfigurationManagerInterface::class);
+        $this->configurationManager = $configurationManager ?? InstanceUtility::get(ConfigurationManagerInterface::class);
     }
 
     /**
@@ -64,25 +71,75 @@ class ConfigurationHandler
     }
 
     /**
-     * @param string $extName
-     * @return array
+     * @return ConfigurationBagInterface
      */
-    private function getGlobalConfigurationForExtension(string $extName): array
+    public function getGlobalTypoScript(): ConfigurationBagInterface
     {
-        $settings = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$extName]??'');
-        if (!$settings) {
-            return [];
+        if (!isset(self::$bagCache[self::TYPE_GLOBAL_TS][self::TYPE_TS])) {
+            self::$bagCache[self::TYPE_GLOBAL_TS][self::TYPE_TS] = new ConfigurationBag($this->getTypoScriptConfig());
         }
 
-        return $settings;
+        return self::$bagCache[self::TYPE_GLOBAL_TS][self::TYPE_TS];
     }
 
     /**
      * @param string $extName
      * @return array
-     * @throws
      */
-    private function getTypoScriptConfigForExtension(string $extName): array
+    private function getGlobalConfigurationForExtension(string $extName): array
+    {
+        if (empty(self::$configRuntimeCache)) {
+            self::$configRuntimeCache = $this->computeConfigurationFiles();
+        }
+
+        return (array)(self::$configRuntimeCache[$extName]??[]);
+    }
+
+    /**
+     *
+     */
+    private function computeConfigurationFiles(): array
+    {
+        if (!isset($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'])) {
+            // load local and additional
+            return $this->loadConfigFiles();
+        }
+
+        $data = [];
+        foreach ($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'] as $extKey => $value) {
+            $v = unserialize($value);
+            if ($v !== false) {
+                $data[$extKey] = $v;
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * @return array
+     */
+    private function loadConfigFiles(): array
+    {
+        $confPath = Environment::getPublicPath() . DIRECTORY_SEPARATOR . 'typo3conf';
+        $localConfig = $confPath . DIRECTORY_SEPARATOR . 'LocalConfiguration.php';
+        if (file_exists($localConfig)) {
+            $config = require $localConfig;
+            $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'] = $config['EXTENSIONS']??[];
+
+            $additionConfig = $confPath . DIRECTORY_SEPARATOR . 'AdditionalConfiguration.php';
+            if (file_exists($additionConfig)) {
+                require $additionConfig;
+            }
+        }
+
+        return $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']??[];
+    }
+
+    /**
+     * @return array
+     */
+    private function getTypoScriptConfig(): array
     {
         if (empty(self::$typoScriptRuntimeCache) && $this->configurationManager) {
             try {
@@ -92,14 +149,25 @@ class ConfigurationHandler
             } catch (Exception $exception) {}
         }
 
+        return self::$typoScriptRuntimeCache;
+    }
+
+    /**
+     * @param string $extName
+     * @return array
+     * @throws
+     */
+    private function getTypoScriptConfigForExtension(string $extName): array
+    {
         $extensionName = str_replace([' ', '_', '-'], '', strtolower($extName));
         if (strpos($extensionName, 'tx_') === false) {
             $extensionName = 'tx_' . $extensionName;
         }
 
+        $config = $this->getTypoScriptConfig();
         return [
-            'module' => self::$typoScriptRuntimeCache['module'][$extensionName]??[],
-            'plugin' => self::$typoScriptRuntimeCache['plugin'][$extensionName]??[]
+            'module' => $config['module'][$extensionName]??[],
+            'plugin' => $config['plugin'][$extensionName]??[]
         ];
     }
 }
