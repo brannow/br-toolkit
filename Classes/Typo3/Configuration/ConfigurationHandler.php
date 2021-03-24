@@ -4,6 +4,7 @@ namespace BR\Toolkit\Typo3\Configuration;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBag;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBagInterface;
 use BR\Toolkit\Typo3\VersionWrapper\InstanceUtility;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Object\Exception;
@@ -120,7 +121,7 @@ class ConfigurationHandler
      */
     private function loadConfigFiles(): array
     {
-        $confPath = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'typo3conf';
+        $confPath = Environment::getPublicPath() . DIRECTORY_SEPARATOR . 'typo3conf';
         $localConfig = $confPath . DIRECTORY_SEPARATOR . 'LocalConfiguration.php';
         if (file_exists($localConfig)) {
             $config = require $localConfig;
@@ -132,7 +133,7 @@ class ConfigurationHandler
             }
         }
 
-        return $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'];
+        return $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']??[];
     }
 
     /**
