@@ -3,6 +3,7 @@
 namespace BR\Toolkit\Typo3\Utility;
 
 use BR\Toolkit\Exceptions\Typo3ConfigException;
+use BR\Toolkit\Typo3\Utility\Stud\FakeMiddlewareHandler;
 use BR\Toolkit\Typo3\VersionWrapper\InstanceUtility;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\NullFrontend;
@@ -20,6 +21,7 @@ use TYPO3\CMS\Extbase\Service\ExtensionService;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+use TYPO3\CMS\Frontend\Middleware\TypoScriptFrontendInitialization;
 
 abstract class FrontendUtility
 {
@@ -77,7 +79,16 @@ abstract class FrontendUtility
             $siteLanguage =  $site->getDefaultLanguage();
         }
 
-        $pageArguments = InstanceUtility::get(PageArguments::class, $site->getRootPageId(), $type, []);
+        $request = $GLOBALS['TYPO3_REQUEST'] ?? ServerRequestFactory::fromGlobals();
+        $frontendUser = InstanceUtility::get(FrontendUserAuthentication::class);
+        $frontendUser->start();
+        $frontendUser->unpack_uc();
+        $pageArguments = InstanceUtility::get(PageArguments::class, $site->getRootPageId(), $type, [], [], $request->getQueryParams());
+        $request = $request->withAttribute('language', $siteLanguage)
+            ->withAttribute('site', $site)
+            ->withAttribute('frontend.user', $frontendUser)
+            ->withAttribute('routing', $pageArguments);
+
         /** @var NullFrontend $nullFrontend */
         $nullFrontend = InstanceUtility::get(NullFrontend::class, 'pages');
         $cacheManager = InstanceUtility::get(CacheManager::class);
@@ -93,15 +104,22 @@ abstract class FrontendUtility
             $pageArguments
         );
 
-        $request = $GLOBALS['TYPO3_REQUEST'] ?? ServerRequestFactory::fromGlobals();
-        $request = $request->withAttribute('language', $siteLanguage);
-        $request = $request->withAttribute('site', $site);
+        $tsfeInit = InstanceUtility::get(TypoScriptFrontendInitialization::class);
+        $tsfeInit->process($request, new FakeMiddlewareHandler());
         $GLOBALS['TYPO3_REQUEST'] = $request;
         $GLOBALS['TSFE']->sys_page = InstanceUtility::get(\TYPO3\CMS\Frontend\Page\PageRepository::class);
         $GLOBALS['TSFE']->getPageAndRootlineWithDomain(1, $request);
-        $GLOBALS['TSFE']->fe_user = new FrontendUserAuthentication();
+        $GLOBALS['TSFE']->fe_user = $frontendUser;
         $GLOBALS['TSFE']->getConfigArray($request);
         $GLOBALS['TSFE']->tmpl->start($GLOBALS['TSFE']->rootLine);
+
+        // Locks may be acquired here
+        $GLOBALS['TSFE']->getFromCache($request);
+        // Get config if not already gotten
+        // After this, we should have a valid config-array ready
+        $GLOBALS['TSFE']->getConfigArray($request);
+        // Setting language and locale
+        $GLOBALS['TSFE']->settingLanguage($request);
 
         return $GLOBALS['TSFE'];
     }
