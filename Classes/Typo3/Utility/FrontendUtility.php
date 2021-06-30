@@ -14,6 +14,7 @@ use TYPO3\CMS\Core\Routing\PageArguments;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Site\SiteFinder;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Extbase\Service\EnvironmentService;
@@ -79,6 +80,21 @@ abstract class FrontendUtility
             $siteLanguage =  $site->getDefaultLanguage();
         }
 
+
+
+        // cli mode check for base url
+        if (static::isCLi() || static::isInvalidRequestUrl()) {
+            GeneralUtility::setIndpEnv('TYPO3_SSL', $site->getBase()->getScheme() === 'https');
+            GeneralUtility::setIndpEnv('HTTP_HOST', $site->getBase()->getHost());
+            GeneralUtility::setIndpEnv('REQUEST_URI', $site->getBase()->getPath());
+            GeneralUtility::setIndpEnv('TYPO3_REQUEST_HOST', $site->getBase()->getScheme().'://'.$site->getBase()->getHost());
+            $base = (string)$site->getBase();
+            GeneralUtility::setIndpEnv('TYPO3_REQUEST_URL', $base);
+            GeneralUtility::setIndpEnv('TYPO3_SITE_URL', $base);
+            GeneralUtility::setIndpEnv('REMOTE_ADDR', '127.0.0.1');
+            GeneralUtility::setIndpEnv('HTTP_USER_AGENT', 'Custom - mode');
+        }
+
         $request = $GLOBALS['TYPO3_REQUEST'] ?? ServerRequestFactory::fromGlobals();
         $frontendUser = InstanceUtility::get(FrontendUserAuthentication::class);
         $frontendUser->start();
@@ -122,6 +138,22 @@ abstract class FrontendUtility
         $GLOBALS['TSFE']->settingLanguage($request);
 
         return $GLOBALS['TSFE'];
+    }
+
+    /**
+     * @return bool
+     */
+    protected static function isCLi(): bool
+    {
+        return php_sapi_name() === 'cli';
+    }
+
+    /**
+     * @return bool
+     */
+    protected static function isInvalidRequestUrl(): bool
+    {
+        return parse_url(GeneralUtility::getIndpEnv('TYPO3_REQUEST_URL')) === false;
     }
 
     /**
