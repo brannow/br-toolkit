@@ -80,8 +80,6 @@ abstract class FrontendUtility
             $siteLanguage =  $site->getDefaultLanguage();
         }
 
-
-
         // cli mode check for base url
         if (static::isCLi() || static::isInvalidRequestUrl()) {
             GeneralUtility::setIndpEnv('TYPO3_SSL', $site->getBase()->getScheme() === 'https');
