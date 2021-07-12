@@ -4,6 +4,7 @@ namespace BR\Toolkit\Typo3\Configuration;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBag;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBagInterface;
 use BR\Toolkit\Typo3\VersionWrapper\InstanceUtility;
+use TYPO3\CMS\Core\Configuration\Loader\YamlFileLoader;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
@@ -36,11 +37,17 @@ class ConfigurationHandler
     private $configurationManager;
 
     /**
+     * @var YamlFileLoader
+     */
+    private $yamlFileLoader;
+
+    /**
      * ConfigurationHandler constructor.
      * @param ConfigurationManagerInterface|null $configurationManager
      */
-    public function __construct(ConfigurationManagerInterface $configurationManager = null)
+    public function __construct(ConfigurationManagerInterface $configurationManager = null, YamlFileLoader $yamlFileLoader = null)
     {
+        $this->yamlFileLoader = $yamlFileLoader ?? InstanceUtility::get(YamlFileLoader::class);
         $this->configurationManager = $configurationManager ?? InstanceUtility::get(ConfigurationManagerInterface::class);
     }
 
@@ -80,6 +87,23 @@ class ConfigurationHandler
         }
 
         return self::$bagCache[self::TYPE_GLOBAL_TS][self::TYPE_TS];
+    }
+
+    /**
+     * @param string $extensionPath
+     * @param string $excludeRootElement
+     * @return ConfigurationBagInterface|null
+     */
+    public function getYamlConfig(string $extensionPath, string $excludeRootElement = ''): ?ConfigurationBagInterface
+    {
+        $data = $this->yamlFileLoader->load($extensionPath);
+        if (empty($data) || !is_array($data)) return null;
+
+        if ($excludeRootElement !== '') {
+            return new ConfigurationBag($data[$excludeRootElement]??$data);
+        }
+
+        return new ConfigurationBag($data);
     }
 
     /**
