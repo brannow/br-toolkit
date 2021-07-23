@@ -11,8 +11,9 @@ abstract class InstanceUtility
      * Typo3 9 to 10 wrapper to handle the new autowiring feature better
      *
      * @param string $className
-     * @param mixed ...$arguments
+     * @param ...$arguments
      * @return object|\Psr\Log\LoggerAwareInterface|\TYPO3\CMS\Core\SingletonInterface
+     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
     public static function get(string $className, ...$arguments)
     {
