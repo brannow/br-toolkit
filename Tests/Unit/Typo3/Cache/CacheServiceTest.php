@@ -32,10 +32,16 @@ class CacheServiceTest extends TestCase
         $typo3CacheInterface = $this->getMockBuilder(FrontendInterface::class)->getMock();
         $this->cacheAdapter = $typo3BackendCacheAdapter = $this->getMockBuilder(BackendInterface::class)->getMock();
 
+
         $typoCacheManager->expects($this->any())->method('getCache')->willReturn($typo3CacheInterface);
         $typo3CacheInterface->expects($this->any())->method('getBackend')->willReturn($typo3BackendCacheAdapter);
 
-        $this->service = new CacheService($typoCacheManager);
+        $this->service = new CacheService();
+
+        $property = new \ReflectionProperty(CacheService::class, 'cacheInstance');
+        $property->setAccessible(true);
+        $property->setValue($this->service, $this->cacheAdapter);
+
     }
 
     public function testWriteToCacheSimple()

@@ -8,12 +8,12 @@ use BR\Toolkit\Exceptions\CacheException;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBag;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBagInterface;
 use BR\Toolkit\Typo3\VersionWrapper\InstanceUtility;
-use TYPO3\CMS\Core\Cache\CacheManager as Typo3CacheManager;
 use TYPO3\CMS\Core\Cache\Exception;
 use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Cache\Backend\BackendInterface;
+use TYPO3\CMS\Core\SingletonInterface;
 
-class CacheService implements CacheServiceInterface
+class CacheService implements CacheServiceInterface, SingletonInterface
 {
     private const NOT_FOUND_BLOCK = 'NOT_FOUND_TRIGGER_BLOCK_0x011011';
 
@@ -26,9 +26,9 @@ class CacheService implements CacheServiceInterface
     private static $cacheKey = '';
 
     /**
-     * @var BackendInterface
+     * @var BackendInterface|null
      */
-    private $cacheInstance;
+    private ?BackendInterface $cacheInstance = null;
 
     /**
      * @var ConfigurationBagInterface[]
@@ -42,13 +42,14 @@ class CacheService implements CacheServiceInterface
 
     /**
      * CacheService constructor.
-     * @param Typo3CacheManager|null $typo3CacheManager
+     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
-    public function __construct(Typo3CacheManager $typo3CacheManager = null)
+    public function __construct()
     {
         try {
-            $typo3CacheManager = $typo3CacheManager??InstanceUtility::get(Typo3CacheManager::class);
-            $this->cacheInstance = $typo3CacheManager->getCache(CacheManager::CACHE_DOMAIN)->getBackend();
+            /** @var CacheManager $cacheManager */
+            $cacheManager = InstanceUtility::get(CacheManager::class);
+            $this->cacheInstance = $cacheManager->sideLoadCacheFrontend(CacheManager::CACHE_DOMAIN, CacheManager::announceCache())->getBackend();
         } catch (NoSuchCacheException $e) {}
     }
 
