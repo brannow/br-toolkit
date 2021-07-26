@@ -7,9 +7,7 @@ namespace BR\Toolkit\Typo3\Cache;
 use BR\Toolkit\Exceptions\CacheException;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBag;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBagInterface;
-use BR\Toolkit\Typo3\VersionWrapper\InstanceUtility;
 use TYPO3\CMS\Core\Cache\Exception;
-use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Cache\Backend\BackendInterface;
 use TYPO3\CMS\Core\SingletonInterface;
 
@@ -28,7 +26,7 @@ class CacheService implements CacheServiceInterface, SingletonInterface
     /**
      * @var BackendInterface|null
      */
-    private ?BackendInterface $cacheInstance = null;
+    private static ?BackendInterface $cacheInstance = null;
 
     /**
      * @var ConfigurationBagInterface[]
@@ -41,16 +39,18 @@ class CacheService implements CacheServiceInterface, SingletonInterface
     private static $cacheMutationFlag = [];
 
     /**
-     * CacheService constructor.
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
+     * @return BackendInterface|null
+     * @throws Exception\DuplicateIdentifierException
+     * @throws Exception\InvalidBackendException
+     * @throws Exception\InvalidCacheException
      */
-    public function __construct()
+    private function getCacheInstance(): ?BackendInterface
     {
-        try {
-            /** @var CacheManager $cacheManager */
-            $cacheManager = InstanceUtility::get(CacheManager::class);
-            $this->cacheInstance = $cacheManager->sideLoadCacheFrontend(CacheManager::CACHE_DOMAIN, CacheManager::announceCache())->getBackend();
-        } catch (NoSuchCacheException $e) {}
+        if (self::$cacheInstance instanceof BackendInterface) {
+            return self::$cacheInstance;
+        }
+
+        return self::$cacheInstance = (new CacheManager(false))->sideLoadCacheFrontend(CacheManager::CACHE_DOMAIN, CacheManager::announceCache())->getBackend();
     }
 
     /**
@@ -142,19 +142,23 @@ class CacheService implements CacheServiceInterface, SingletonInterface
     /**
      * @param string $context
      * @return bool
+     * @throws Exception\DuplicateIdentifierException
+     * @throws Exception\InvalidBackendException
+     * @throws Exception\InvalidCacheException
      */
     private function storeCacheBag(string $context): bool
     {
         $this->initCacheBag($context);
         $data = self::$cacheBag[$context]->getData();
-        if ($this->cacheInstance !== null) {
+        $instance = $this->getCacheInstance();
+        if ($instance !== null) {
             $dataString = serialize($data);
             $checksum = crc32($dataString);
             try {
                 // write only if there are changes, to reduce I/O
                 if (self::$cacheMutationFlag[$context]??null !== $checksum) {
                     self::$cacheMutationFlag[$context] = $checksum;
-                    $this->cacheInstance->set($this->getGlobalCacheKey($context), $dataString, [], 0);
+                    $instance->set($this->getGlobalCacheKey($context), $dataString, [], 0);
                 }
 
             } catch (Exception $e) {
@@ -176,8 +180,9 @@ class CacheService implements CacheServiceInterface, SingletonInterface
         }
 
         $data = [];
-        if ($this->cacheInstance !== null) {
-            $rawData = $this->cacheInstance->get($this->getGlobalCacheKey($context));
+        $instance = $this->getCacheInstance();
+        if ($instance !== null) {
+            $rawData = $instance->get($this->getGlobalCacheKey($context));
             if ($rawData !== false && is_string($rawData)) {
                 $data = unserialize($rawData);
             }
