@@ -39,7 +39,7 @@ class CacheManager extends BaseCacheManager
      * @throws \TYPO3\CMS\Core\Cache\Exception\InvalidBackendException
      * @throws \TYPO3\CMS\Core\Cache\Exception\InvalidCacheException
      */
-    public function sideLoadCacheFrontend(string $identifier, array $config): FrontendInterface
+    public function sideLoadCacheFrontend(string $identifier, array $config): ?FrontendInterface
     {
         $this->setCacheConfigurations([
             $identifier => $config
@@ -48,6 +48,6 @@ class CacheManager extends BaseCacheManager
         if (!isset($this->caches[$identifier])) {
             $this->createCache($identifier);
         }
-        return $this->caches[$identifier];
+        return $this->caches[$identifier]??null;
     }
 }

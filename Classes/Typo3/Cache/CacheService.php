@@ -9,6 +9,7 @@ use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBag;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBagInterface;
 use TYPO3\CMS\Core\Cache\Exception;
 use TYPO3\CMS\Core\Cache\Backend\BackendInterface;
+use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\SingletonInterface;
 
 class CacheService implements CacheServiceInterface, SingletonInterface
@@ -50,7 +51,17 @@ class CacheService implements CacheServiceInterface, SingletonInterface
             return self::$cacheInstance;
         }
 
-        return self::$cacheInstance = (new CacheManager(false))->sideLoadCacheFrontend(CacheManager::CACHE_DOMAIN, CacheManager::announceCache())->getBackend();
+        try {
+            $frontendCache = (new CacheManager(false))->sideLoadCacheFrontend(CacheManager::CACHE_DOMAIN, CacheManager::announceCache());
+        } catch (\Exception $_) {
+            return null;
+        }
+
+        if ($frontendCache instanceof FrontendInterface) {
+            return self::$cacheInstance = $frontendCache->getBackend();
+        }
+
+        return null;
     }
 
     /**
