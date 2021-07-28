@@ -64,12 +64,12 @@ class ConfigurationHandler implements SingletonInterface
      * @param CacheService $cacheService
      * @throws Exception
      */
-    public function __construct(ConfigurationManagerInterface $configurationManager = null, YamlFileLoader $yamlFileLoader = null, FileHandler $fileHandler = null, CacheService $cacheService = null)
+    public function __construct(ConfigurationManagerInterface $configurationManager = null, YamlFileLoader $yamlFileLoader = null, FileHandler $fileHandler = null)
     {
         $this->yamlFileLoader = $yamlFileLoader ?? InstanceUtility::get(YamlFileLoader::class);
         $this->configurationManager = $configurationManager ?? InstanceUtility::get(ConfigurationManagerInterface::class);
         $this->fileHandler = $fileHandler ?? InstanceUtility::get(FileHandler::class);
-        $this->cacheService = $cacheService ?? InstanceUtility::get(CacheService::class);
+        //$this->cacheService = $cacheService ?? InstanceUtility::get(CacheService::class);
     }
 
     /**
@@ -148,12 +148,13 @@ class ConfigurationHandler implements SingletonInterface
     private function computeConfigurationFiles(): array
     {
         if (!isset($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'])) {
-            $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'] = $this->cacheService->cache(
+            $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'] = $this->loadConfigFiles();
+            /*$GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'] = $this->cacheService->cache(
                 'ConfigHandler_computeConfigurationFiles_extConf',
                 fn() => $this->loadConfigFiles(),
                 CacheServiceInterface::CONTEXT_GLOBAL,
                 0
-            );
+            );*/
         }
 
         $data = [];
