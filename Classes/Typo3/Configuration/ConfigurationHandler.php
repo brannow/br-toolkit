@@ -8,6 +8,8 @@ use BR\Toolkit\Typo3\Cache\CacheServiceInterface;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBag;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBagInterface;
 use BR\Toolkit\Typo3\VersionWrapper\InstanceUtility;
+use TYPO3\CMS\Core\Configuration\ConfigurationManager;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Configuration\Loader\YamlFileLoader;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\SingletonInterface;
@@ -47,34 +49,32 @@ class ConfigurationHandler implements SingletonInterface
     private $yamlFileLoader;
 
     /**
-     * @var FileHandler
+     * @var ExtensionConfiguration
      */
-    private $fileHandler;
-
-    /**
-     * @var CacheService
-     */
-    private $cacheService;
+    private $extensionConfiguration;
 
     /**
      * ConfigurationHandler constructor.
      * @param ConfigurationManagerInterface|null $configurationManager
      * @param YamlFileLoader|null $yamlFileLoader
-     * @param FileHandler|null $fileHandler
-     * @param CacheService $cacheService
+     * @param ExtensionConfiguration|null $extensionConfiguration
      * @throws Exception
      */
-    public function __construct(ConfigurationManagerInterface $configurationManager = null, YamlFileLoader $yamlFileLoader = null, FileHandler $fileHandler = null)
-    {
+    public function __construct(
+        ConfigurationManagerInterface $configurationManager = null,
+        YamlFileLoader $yamlFileLoader = null,
+        ExtensionConfiguration $extensionConfiguration = null
+    ) {
         $this->yamlFileLoader = $yamlFileLoader ?? InstanceUtility::get(YamlFileLoader::class);
         $this->configurationManager = $configurationManager ?? InstanceUtility::get(ConfigurationManagerInterface::class);
-        $this->fileHandler = $fileHandler ?? InstanceUtility::get(FileHandler::class);
-        //$this->cacheService = $cacheService ?? InstanceUtility::get(CacheService::class);
+        $this->extensionConfiguration = $extensionConfiguration ?? InstanceUtility::get(ExtensionConfiguration::class);
     }
 
     /**
      * @param string $extName
      * @return ConfigurationBagInterface
+     * @throws \TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException
+     * @throws \TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException
      */
     public function getExtensionConfiguration(string $extName): ConfigurationBagInterface
     {
@@ -130,85 +130,27 @@ class ConfigurationHandler implements SingletonInterface
     /**
      * @param string $extName
      * @return array
-     * @throws \BR\Toolkit\Exceptions\CacheException
+     * @throws \TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException
+     * @throws \TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException
      */
     private function getGlobalConfigurationForExtension(string $extName): array
     {
-        if (empty(self::$configRuntimeCache)) {
-            self::$configRuntimeCache = $this->computeConfigurationFiles();
+        if (empty(self::$configRuntimeCache[$extName])) {
+            self::$configRuntimeCache[$extName] = $this->computeConfigurationFiles($extName);
         }
 
         return (array)(self::$configRuntimeCache[$extName]??[]);
     }
 
     /**
+     * @param string $extName
      * @return array
-     * @throws \BR\Toolkit\Exceptions\CacheException
+     * @throws \TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException
+     * @throws \TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException
      */
-    private function computeConfigurationFiles(): array
+    private function computeConfigurationFiles(string $extName): array
     {
-        if (!isset($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'])) {
-            $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'] = $this->loadConfigFiles();
-            /*$GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'] = $this->cacheService->cache(
-                'ConfigHandler_computeConfigurationFiles_extConf',
-                fn() => $this->loadConfigFiles(),
-                CacheServiceInterface::CONTEXT_GLOBAL,
-                0
-            );*/
-        }
-
-        $data = [];
-        foreach ($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'] as $extKey => $value) {
-            if (is_array($value)) {
-                $v = $value;
-            } else {
-                $v = unserialize($value);
-            }
-
-            if ($v !== false) {
-                $data[$extKey] = $v;
-            }
-        }
-
-        return $data;
-    }
-
-    /**
-     * @return array
-     */
-    private function loadConfigFiles(): array
-    {
-        $confPath = Environment::getPublicPath() . DIRECTORY_SEPARATOR . 'typo3conf';
-        $localConfig = $confPath . DIRECTORY_SEPARATOR . 'LocalConfiguration.php';
-        $additionalConfig = $config = [];
-        if ($this->fileHandler->exists($localConfig)) {
-            $config = $this->fileHandler->require($localConfig);
-            if (!is_array($config)) {
-                $config = [];
-            }
-            $config = $config['EXTENSIONS']??[];
-            $config = array_replace_recursive(
-                $config,
-                $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']??[]
-            );
-            $additionConfig = $confPath . DIRECTORY_SEPARATOR . 'AdditionalConfiguration.php';
-            if ($this->fileHandler->exists($additionConfig)) {
-                $additionalConfig = $this->fileHandler->require($additionConfig);
-                $additionalConfig = $additionalConfig['EXTENSIONS']??[];
-
-                $additionalConfig = array_replace_recursive(
-                    $additionalConfig,
-                    $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']??[]
-                );
-            }
-        }
-
-        $config = array_replace_recursive(
-            $config,
-            $additionalConfig
-        );
-
-        return $config??[];
+        return $this->extensionConfiguration->get($extName);
     }
 
     /**

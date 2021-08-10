@@ -7,6 +7,7 @@ use BR\Toolkit\Typo3\Cache\CacheService;
 use BR\Toolkit\Typo3\Configuration\ConfigurationHandler;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBagInterface;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Configuration\Loader\Exception\YamlFileLoadingException;
 use TYPO3\CMS\Core\Configuration\Loader\YamlFileLoader;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
@@ -27,14 +28,9 @@ class ConfigurationHandlerTest extends TestCase
     private $typoConfigManager;
 
     /**
-     * @var FileHandler|\PHPUnit\Framework\MockObject\MockObject
+     * @var ExtensionConfiguration|\PHPUnit\Framework\MockObject\MockObject
      */
-    private $fileHandler;
-
-    /**
-     * @var CacheService|\PHPUnit\Framework\MockObject\MockObject
-     */
-    private $cacheService;
+    private $sysConfig;
 
     /**
      * @var YamlFileLoader|\PHPUnit\Framework\MockObject\MockObject
@@ -72,36 +68,27 @@ class ConfigurationHandlerTest extends TestCase
 
         $this->typoConfigManager = $this->getMockBuilder(ConfigurationManagerInterface::class)->getMock();
         $this->fileHandler = $this->getMockBuilder(FileHandler::class)->getMock();
-        $this->cacheService = $this->getMockBuilder(CacheService::class)->getMock();
+        $this->sysConfig = $this->getMockBuilder(ExtensionConfiguration::class)->getMock();
         $this->yamlLoader = $this->getMockBuilder(YamlFileLoader::class)->getMock();
-        $this->cacheService->expects($this->any())
-            ->method('cache')
-            ->with($this->anything(), $this->callback( function (callable $block) {
-                ConfigurationHandlerTest::$cacheDataHandle = $block();
-                return true;
-            }), $this->anything(), $this->anything())
-            ->willReturnCallback(fn() => ConfigurationHandlerTest::$cacheDataHandle);
-
-        $this->handler = new ConfigurationHandler($this->typoConfigManager, $this->yamlLoader, $this->fileHandler, $this->cacheService);
-
-        $config = [
-            'version' => '1.0',
-            'name' => 'test',
-            'sub' => [
-                'list' => '99,5,1233'
-            ],
-            'bool' => true,
-            'int' => 4,
-            'float' => 2.3
-        ];
-
-        // typo3 ext config
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['test_ext'] = serialize($config);
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['test_ext_non_serial'] = $config;
+        $this->handler = new ConfigurationHandler($this->typoConfigManager, $this->yamlLoader, $this->sysConfig);
     }
 
     public function testExtConfigLoadSuccess()
     {
+        $this->sysConfig->expects($this->once())
+            ->method('get')
+            ->with('test_ext')
+            ->willReturn([
+                'version' => '1.0',
+                'name' => 'test',
+                'sub' => [
+                    'list' => '99,5,1233'
+                ],
+                'bool' => true,
+                'int' => 4,
+                'float' => 2.3
+            ]);
+
         $name = $this->handler->getExtensionConfiguration('test_ext')->getValue('name');
         $bool = $this->handler->getExtensionConfiguration('test_ext')->getValue('bool');
         $int = $this->handler->getExtensionConfiguration('test_ext')->getValue('int');
@@ -117,28 +104,16 @@ class ConfigurationHandlerTest extends TestCase
 
     public function testExtConfigLoadNotFound()
     {
+        $this->sysConfig->expects($this->exactly(2))
+            ->method('get')
+            ->willReturn([]);
+
         $name = $this->handler->getExtensionConfiguration('test_ext_notFound')->getValue('name');
         $this->assertSame('', $name);
 
         $this->reflectionConfigRuntimeCache->setValue($this->handler, []);
         $name = $this->handler->getExtensionConfiguration('test_ext_notFound2')->getValue('name');
         $this->assertSame('', $name);
-    }
-
-    public function testExtConfigLoadAlreadyUnserialized()
-    {
-        $this->reflectionConfigRuntimeCache->setValue($this->handler, []);
-        $name = $this->handler->getExtensionConfiguration('test_ext_non_serial')->getValue('name');
-        $bool = $this->handler->getExtensionConfiguration('test_ext_non_serial')->getValue('bool');
-        $int = $this->handler->getExtensionConfiguration('test_ext_non_serial')->getValue('int');
-        $float = $this->handler->getExtensionConfiguration('test_ext_non_serial')->getValue('float');
-        $intList = $this->handler->getExtensionConfiguration('test_ext_non_serial')->getExplodedIntValueFromArrayPath('sub.list');
-
-        $this->assertSame('test', $name);
-        $this->assertSame(true, $bool);
-        $this->assertSame(4, $int);
-        $this->assertSame(2.3, $float);
-        $this->assertSame([99,5,1233], $intList);
     }
 
     public function testGlobalTypoScriptGeneric()
@@ -174,107 +149,6 @@ class ConfigurationHandlerTest extends TestCase
                 ]
             ]
         ]);
-    }
-
-    public function testExtConfigNotFoundAndNotFoundInGlobal()
-    {
-        $backup = $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'];
-        unset($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']);
-        $this->reflectionConfigRuntimeCache->setValue($this->handler, []);
-        $name = $this->handler->getExtensionConfiguration('test_ext_notFound3')->getValue('name');
-        $this->assertSame('', $name);
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'] = $backup;
-    }
-
-    public function testExtConfigLoaded()
-    {
-        $backup = $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'];
-        unset($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']);
-        $this->reflectionConfigRuntimeCache->setValue($this->handler, []);
-        $this->fileHandler->expects($this->exactly(2))
-            ->method('exists')
-            ->withAnyParameters()
-            ->willReturnOnConsecutiveCalls(true, false);
-
-        $this->fileHandler->expects($this->once())
-            ->method('require')
-            ->withAnyParameters()
-            ->willReturn(['EXTENSIONS' => [
-                'test_ext_a' => [
-                    'a' => [
-                        'b' => 1
-                    ]
-                ]
-            ]]);
-
-        $bag = $this->handler->getExtensionConfiguration('test_ext_a');
-        $this->assertEquals(1, $bag->getValueFromArrayPath('a.b'));
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'] = $backup;
-    }
-
-    public function testExtConfigLoadedNoArray()
-    {
-        $backup = $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'];
-        unset($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']);
-        $this->reflectionConfigRuntimeCache->setValue($this->handler, []);
-
-        $this->fileHandler->expects($this->exactly(2))
-            ->method('exists')
-            ->withAnyParameters()
-            ->willReturnOnConsecutiveCalls(true, false);
-
-        $this->fileHandler->expects($this->once())
-            ->method('require')
-            ->withAnyParameters()
-            ->willReturn('RANDOM_STUFF');
-
-        $bag = $this->handler->getExtensionConfiguration('test_ext_b');
-        $this->assertEmpty( $bag->getData());
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'] = $backup;
-    }
-
-    public function testExtConfigLoadedAdditional()
-    {
-        $backup = $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'];
-        unset($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']);
-        $this->reflectionConfigRuntimeCache->setValue($this->handler, []);
-
-        $this->fileHandler->expects($this->exactly(2))
-            ->method('exists')
-            ->withAnyParameters()
-            ->willReturn(true);
-
-        $this->fileHandler->expects($this->exactly(2))
-            ->method('require')
-            ->withAnyParameters()
-            ->willReturnOnConsecutiveCalls(
-                [
-                    'EXTENSIONS' => [
-                        'test_ext_c' => [
-                            'a' => [
-                                'b' => 1
-                            ]
-                        ]
-                    ]
-                ],
-                [
-                    'EXTENSIONS' => [
-                        'test_ext_c' => [
-                            'a' => [
-                                'b' => 2
-                            ],
-                            'b' => [
-                                'c' => 1
-                            ]
-                        ]
-                    ]
-                ]
-            );
-
-        $bag = $this->handler->getExtensionConfiguration('test_ext_c');
-        $this->assertEquals(2, $bag->getValueFromArrayPath('a.b'));
-        $this->assertEquals(1, $bag->getValueFromArrayPath('b.c'));
-        $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'] = $backup;
     }
 
     public function testTSLoadingException()
