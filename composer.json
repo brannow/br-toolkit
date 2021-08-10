@@ -46,9 +46,6 @@
         "bin-dir": ".Build/bin"
     },
     "extra": {
-        "branch-alias": {
-            "dev-master": "0.1-dev"
-        },
         "typo3/cms": {
             "extension-key": "br_toolkit",
             "cms-package-dir": "{$vendor-dir}/typo3/cms",
