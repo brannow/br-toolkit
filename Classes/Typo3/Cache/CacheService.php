@@ -27,7 +27,7 @@ class CacheService implements CacheServiceInterface, SingletonInterface
     /**
      * @var BackendInterface|null
      */
-    private static ?BackendInterface $cacheInstance = null;
+    private static $cacheInstance = null;
 
     /**
      * @var ConfigurationBagInterface[]

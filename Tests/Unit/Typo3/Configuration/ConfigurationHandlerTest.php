@@ -40,17 +40,17 @@ class ConfigurationHandlerTest extends TestCase
     /**
      * @var \ReflectionProperty|\ReflectionProperty|null
      */
-    private ?\ReflectionProperty $reflectionConfigRuntimeCache = null;
+    private $reflectionConfigRuntimeCache = null;
 
     /**
      * @var \ReflectionProperty|\ReflectionProperty|null
      */
-    private ?\ReflectionProperty $reflectionBagCache = null;
+    private $reflectionBagCache = null;
 
     /**
      * @var \ReflectionProperty|\ReflectionProperty|null
      */
-    private ?\ReflectionProperty $reflectionTypoScriptRuntimeCache = null;
+    private $reflectionTypoScriptRuntimeCache = null;
 
     public function setUp(): void
     {
