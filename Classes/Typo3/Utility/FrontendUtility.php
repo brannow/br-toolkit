@@ -10,11 +10,9 @@ use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Cache\Frontend\NullFrontend;
 use TYPO3\CMS\Core\Cache\Frontend\VariableFrontend;
-use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Http\ServerRequestFactory;
 use TYPO3\CMS\Core\Routing\PageArguments;
-use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Site\SiteFinder;
@@ -133,17 +131,19 @@ abstract class FrontendUtility
         $tsfeInit = InstanceUtility::get(TypoScriptFrontendInitialization::class);
         $tsfeInit->process($request, new FakeMiddlewareHandler());
         $GLOBALS['TYPO3_REQUEST'] = $request;
-        $GLOBALS['TSFE']->sys_page = InstanceUtility::get(\TYPO3\CMS\Frontend\Page\PageRepository::class);
-        $GLOBALS['TSFE']->getPageAndRootlineWithDomain(1, $request);
-        $GLOBALS['TSFE']->fe_user = $frontendUser;
+
+        if (defined('TYPO3_branch') && strpos(TYPO3_branch, '9') === 0) {
+            $GLOBALS['TSFE']->sys_page = InstanceUtility::get(\TYPO3\CMS\Frontend\Page\PageRepository::class);
+            $GLOBALS['TSFE']->getPageAndRootlineWithDomain($site->getRootPageId(), $request);
+        }
+
+        //$GLOBALS['TSFE']->fe_user = $frontendUser;
         $GLOBALS['TSFE']->getConfigArray($request);
         $GLOBALS['TSFE']->tmpl->start($GLOBALS['TSFE']->rootLine);
 
         // Locks may be acquired here
         $GLOBALS['TSFE']->getFromCache($request);
         // Get config if not already gotten
-        // After this, we should have a valid config-array ready
-        $GLOBALS['TSFE']->getConfigArray($request);
         // Setting language and locale
         $GLOBALS['TSFE']->settingLanguage($request);
 

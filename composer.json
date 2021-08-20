@@ -17,13 +17,14 @@
         }
     ],
     "require": {
-        "php": "^7.1",
+        "php": "^7.2",
         "ext-curl": "*",
         "ext-openssl": "*",
         "ext-json": "*",
-        "typo3/cms-core": "^9.5 | ^10.4"
+        "typo3/minimal": "^9.5 | ^10.4"
     },
     "require-dev": {
+        "phpunit/phpunit": "^8",
         "typo3/testing-framework": "*"
     },
     "autoload": {
