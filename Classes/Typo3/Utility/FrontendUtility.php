@@ -75,7 +75,6 @@ abstract class FrontendUtility
         }
 
         if ($site === null) {
-            // todo: find root page id in config
             $site = static::getSite();
         }
 
@@ -108,33 +107,23 @@ abstract class FrontendUtility
             ->withAttribute('routing', $pageArguments);
 
         /** @var FrontendInterface $nullFrontend */
-        if (defined('TYPO3_branch') && strpos(TYPO3_branch, '9') === 0) {
+        if (class_exists(NullFrontend::class)) {
+            $nullFrontend = InstanceUtility::get(NullFrontend::class, 'pages');
+        } else {
+            $_GET['id'] = 1;
+            $_GET['type'] = $type;
             $nullFrontend = InstanceUtility::get(
                 VariableFrontend::class,
                 'pages',
                 InstanceUtility::get(NullBackend::class, 'nullContext')
             );
-        } else {
-            $nullFrontend = InstanceUtility::get(NullFrontend::class, 'pages');
-        }
 
+        }
         $cacheManager = InstanceUtility::get(CacheManager::class);
         try {
             $cacheManager->registerCache($nullFrontend);
         } catch (\Exception $exception) {
             unset($exception);
-        }
-
-        if (defined('TYPO3_branch') && strpos(TYPO3_branch, '9') !== 0) {
-            $GLOBALS['TSFE'] = new TypoScriptFrontendController(
-                InstanceUtility::get(Context::class),
-                $site,
-                $siteLanguage,
-                $pageArguments
-            );
-        } else {
-            $_GET['id'] = 1;
-            $_GET['type'] = $type;
         }
 
         $tsfeInit = InstanceUtility::get(TypoScriptFrontendInitialization::class);
@@ -178,7 +167,7 @@ abstract class FrontendUtility
      * @return Site
      * @throws Typo3ConfigException
      */
-    public static function getSite(int $pageId = 1): Site
+    public static function getSite(int $pageId = -1): Site
     {
         /** @var SiteFinder $siteFinder */
         $siteFinder = InstanceUtility::get(SiteFinder::class);

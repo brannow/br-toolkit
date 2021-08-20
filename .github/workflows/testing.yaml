@@ -17,7 +17,7 @@ jobs:
           coverage: none
           tools: composer:v2
       - name: "Composer Install"
-        run: "composer require typo3/cms-core=${{ matrix.typo3-version }}"
+        run: "composer require typo3/minimal=${{ matrix.typo3-version }}"
       - name: "Run Unit Tests"
         run: "XDEBUG_MODE=coverage .Build/bin/phpunit -c phpunit.xml --coverage-text --colors=never"
     strategy:
