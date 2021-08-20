@@ -110,8 +110,12 @@ abstract class FrontendUtility
         if (class_exists(NullFrontend::class)) {
             $nullFrontend = InstanceUtility::get(NullFrontend::class, 'pages');
         } else {
-            $_GET['id'] = 1;
-            $_GET['type'] = $type;
+            if (!isset($_GET['id'])) {
+                $_GET['id'] = 1;
+            }
+            if (!isset($_GET['type'])) {
+                $_GET['type'] = $type;
+            }
             $nullFrontend = InstanceUtility::get(
                 VariableFrontend::class,
                 'pages',
