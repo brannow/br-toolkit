@@ -5,8 +5,11 @@ namespace BR\Toolkit\Typo3\Utility;
 use BR\Toolkit\Exceptions\Typo3ConfigException;
 use BR\Toolkit\Typo3\Utility\Stud\FakeMiddlewareHandler;
 use BR\Toolkit\Typo3\VersionWrapper\InstanceUtility;
+use TYPO3\CMS\Core\Cache\Backend\NullBackend;
 use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Cache\Frontend\NullFrontend;
+use TYPO3\CMS\Core\Cache\Frontend\VariableFrontend;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Http\ServerRequestFactory;
@@ -64,7 +67,7 @@ abstract class FrontendUtility
      */
     public static function getFrontendController(?Site $site = null, ?SiteLanguage $siteLanguage = null, int $type = 0): ?TypoScriptFrontendController
     {
-        if ($GLOBALS['TSFE'] instanceof TypoScriptFrontendController) {
+        if (isset($GLOBALS['TSFE']) && $GLOBALS['TSFE'] instanceof TypoScriptFrontendController) {
             // only use the current existing tsfe if the site lang is correct
             if ($siteLanguage === null || $GLOBALS['TSFE']->getLanguage()->getLanguageId() === $siteLanguage->getLanguageId()) {
                 return $GLOBALS['TSFE'];
@@ -104,20 +107,35 @@ abstract class FrontendUtility
             ->withAttribute('frontend.user', $frontendUser)
             ->withAttribute('routing', $pageArguments);
 
-        /** @var NullFrontend $nullFrontend */
-        $nullFrontend = InstanceUtility::get(NullFrontend::class, 'pages');
+        /** @var FrontendInterface $nullFrontend */
+        if (defined('TYPO3_branch') && strpos(TYPO3_branch, '9') === 0) {
+            $nullFrontend = InstanceUtility::get(
+                VariableFrontend::class,
+                'pages',
+                InstanceUtility::get(NullBackend::class, 'nullContext')
+            );
+        } else {
+            $nullFrontend = InstanceUtility::get(NullFrontend::class, 'pages');
+        }
+
         $cacheManager = InstanceUtility::get(CacheManager::class);
         try {
             $cacheManager->registerCache($nullFrontend);
         } catch (\Exception $exception) {
             unset($exception);
         }
-        $GLOBALS['TSFE'] = new TypoScriptFrontendController(
-            InstanceUtility::get(Context::class),
-            $site,
-            $siteLanguage,
-            $pageArguments
-        );
+
+        if (defined('TYPO3_branch') && strpos(TYPO3_branch, '9') !== 0) {
+            $GLOBALS['TSFE'] = new TypoScriptFrontendController(
+                InstanceUtility::get(Context::class),
+                $site,
+                $siteLanguage,
+                $pageArguments
+            );
+        } else {
+            $_GET['id'] = 1;
+            $_GET['type'] = $type;
+        }
 
         $tsfeInit = InstanceUtility::get(TypoScriptFrontendInitialization::class);
         $tsfeInit->process($request, new FakeMiddlewareHandler());
@@ -160,7 +178,7 @@ abstract class FrontendUtility
      * @return Site
      * @throws Typo3ConfigException
      */
-    public static function getSite(int $pageId = -1): Site
+    public static function getSite(int $pageId = 1): Site
     {
         /** @var SiteFinder $siteFinder */
         $siteFinder = InstanceUtility::get(SiteFinder::class);
