@@ -118,9 +118,14 @@ class ConfigurationHandlerTest extends TestCase
 
     public function testGlobalTypoScriptGeneric()
     {
+        $expected = [];
+        $this->typoConfigManager->expects($this->once())
+            ->method('getConfiguration')
+            ->willReturn($expected);
+
         $data = $this->handler->getGlobalTypoScript();
         $this->assertTrue($data instanceof ConfigurationBagInterface);
-        $this->assertSame($data->getData(), []);
+        $this->assertSame($expected, $data->getData());
     }
 
     public function testGlobalTypoScriptTSFound()
