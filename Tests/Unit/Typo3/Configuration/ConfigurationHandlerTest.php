@@ -40,17 +40,17 @@ class ConfigurationHandlerTest extends TestCase
     /**
      * @var \ReflectionProperty|\ReflectionProperty|null
      */
-    private ?\ReflectionProperty $reflectionConfigRuntimeCache = null;
+    private $reflectionConfigRuntimeCache = null;
 
     /**
      * @var \ReflectionProperty|\ReflectionProperty|null
      */
-    private ?\ReflectionProperty $reflectionBagCache = null;
+    private $reflectionBagCache = null;
 
     /**
      * @var \ReflectionProperty|\ReflectionProperty|null
      */
-    private ?\ReflectionProperty $reflectionTypoScriptRuntimeCache = null;
+    private $reflectionTypoScriptRuntimeCache = null;
 
     public function setUp(): void
     {
@@ -118,9 +118,14 @@ class ConfigurationHandlerTest extends TestCase
 
     public function testGlobalTypoScriptGeneric()
     {
+        $expected = [];
+        $this->typoConfigManager->expects($this->once())
+            ->method('getConfiguration')
+            ->willReturn($expected);
+
         $data = $this->handler->getGlobalTypoScript();
         $this->assertTrue($data instanceof ConfigurationBagInterface);
-        $this->assertSame($data->getData(), []);
+        $this->assertSame($expected, $data->getData());
     }
 
     public function testGlobalTypoScriptTSFound()

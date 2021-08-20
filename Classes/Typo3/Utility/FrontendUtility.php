@@ -30,7 +30,7 @@ abstract class FrontendUtility
     /**
      * @var UriBuilder|null
      */
-    protected static ?UriBuilder $uriBuilder = null;
+    protected static $uriBuilder = null;
 
     /**
      * @param int $pageId

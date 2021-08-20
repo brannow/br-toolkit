@@ -3,11 +3,11 @@
 Function / Class Collection (Toolkit) for everyday usage.
 
 ## Requirements
-* php ^7.2|^7.3
+* php ^7.1
 * php-curl: *
 * php-openssl: *
 * php-json: *
-* TYPO3: ^9.5
+* TYPO3: ^9.5 | ^10.4"
 
 ## Installation
 ```

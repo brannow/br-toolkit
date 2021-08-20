@@ -162,7 +162,7 @@ class ConfigurationHandler implements SingletonInterface
             try {
                 self::$typoScriptRuntimeCache = GeneralUtility::removeDotsFromTS($this->configurationManager->getConfiguration(
                     ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
-                ));
+                )??[]);
             } catch (Exception $exception) {}
         }
 
