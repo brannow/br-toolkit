@@ -5,13 +5,14 @@ namespace BR\Toolkit\Typo3\Utility;
 use BR\Toolkit\Exceptions\Typo3ConfigException;
 use BR\Toolkit\Typo3\Utility\Stud\FakeMiddlewareHandler;
 use BR\Toolkit\Typo3\VersionWrapper\InstanceUtility;
+use TYPO3\CMS\Core\Cache\Backend\NullBackend;
 use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Cache\Frontend\NullFrontend;
-use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Cache\Frontend\VariableFrontend;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Http\ServerRequestFactory;
 use TYPO3\CMS\Core\Routing\PageArguments;
-use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Site\SiteFinder;
@@ -64,7 +65,7 @@ abstract class FrontendUtility
      */
     public static function getFrontendController(?Site $site = null, ?SiteLanguage $siteLanguage = null, int $type = 0): ?TypoScriptFrontendController
     {
-        if ($GLOBALS['TSFE'] instanceof TypoScriptFrontendController) {
+        if (isset($GLOBALS['TSFE']) && $GLOBALS['TSFE'] instanceof TypoScriptFrontendController) {
             // only use the current existing tsfe if the site lang is correct
             if ($siteLanguage === null || $GLOBALS['TSFE']->getLanguage()->getLanguageId() === $siteLanguage->getLanguageId()) {
                 return $GLOBALS['TSFE'];
@@ -72,7 +73,6 @@ abstract class FrontendUtility
         }
 
         if ($site === null) {
-            // todo: find root page id in config
             $site = static::getSite();
         }
 
@@ -104,35 +104,46 @@ abstract class FrontendUtility
             ->withAttribute('frontend.user', $frontendUser)
             ->withAttribute('routing', $pageArguments);
 
-        /** @var NullFrontend $nullFrontend */
-        $nullFrontend = InstanceUtility::get(NullFrontend::class, 'pages');
+        /** @var FrontendInterface $nullFrontend */
+        if (class_exists(NullFrontend::class)) {
+            $nullFrontend = InstanceUtility::get(NullFrontend::class, 'pages');
+        } else {
+            if (!isset($_GET['id'])) {
+                $_GET['id'] = 1;
+            }
+            if (!isset($_GET['type'])) {
+                $_GET['type'] = $type;
+            }
+            $nullFrontend = InstanceUtility::get(
+                VariableFrontend::class,
+                'pages',
+                InstanceUtility::get(NullBackend::class, 'nullContext')
+            );
+
+        }
         $cacheManager = InstanceUtility::get(CacheManager::class);
         try {
             $cacheManager->registerCache($nullFrontend);
         } catch (\Exception $exception) {
             unset($exception);
         }
-        $GLOBALS['TSFE'] = new TypoScriptFrontendController(
-            InstanceUtility::get(Context::class),
-            $site,
-            $siteLanguage,
-            $pageArguments
-        );
 
         $tsfeInit = InstanceUtility::get(TypoScriptFrontendInitialization::class);
         $tsfeInit->process($request, new FakeMiddlewareHandler());
         $GLOBALS['TYPO3_REQUEST'] = $request;
-        $GLOBALS['TSFE']->sys_page = InstanceUtility::get(\TYPO3\CMS\Frontend\Page\PageRepository::class);
-        $GLOBALS['TSFE']->getPageAndRootlineWithDomain(1, $request);
-        $GLOBALS['TSFE']->fe_user = $frontendUser;
+
+        if (defined('TYPO3_branch') && strpos(TYPO3_branch, '9') === 0) {
+            $GLOBALS['TSFE']->sys_page = InstanceUtility::get(\TYPO3\CMS\Frontend\Page\PageRepository::class);
+            $GLOBALS['TSFE']->getPageAndRootlineWithDomain($site->getRootPageId(), $request);
+        }
+
+        //$GLOBALS['TSFE']->fe_user = $frontendUser;
         $GLOBALS['TSFE']->getConfigArray($request);
         $GLOBALS['TSFE']->tmpl->start($GLOBALS['TSFE']->rootLine);
 
         // Locks may be acquired here
         $GLOBALS['TSFE']->getFromCache($request);
         // Get config if not already gotten
-        // After this, we should have a valid config-array ready
-        $GLOBALS['TSFE']->getConfigArray($request);
         // Setting language and locale
         $GLOBALS['TSFE']->settingLanguage($request);
 

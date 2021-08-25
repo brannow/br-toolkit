@@ -11,6 +11,7 @@ use TYPO3\CMS\Core\Cache\Exception;
 use TYPO3\CMS\Core\Cache\Backend\BackendInterface;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class CacheService implements CacheServiceInterface, SingletonInterface
 {

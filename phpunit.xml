@@ -1,36 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!-- https://phpunit.de/manual/current/en/appendixes.configuration.html -->
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd" backupGlobals="true" bootstrap=".Build/vendor/typo3/testing-framework/Resources/Core/Build/UnitTestsBootstrap.php" colors="true" failOnRisky="true" failOnWarning="true" beStrictAboutTestsThatDoNotTestAnything="true">
-  <coverage>
-    <include>
-      <directory suffix=".php">Classes</directory>
-    </include>
-    <exclude>
-      <directory>Classes/Interfaces</directory>
-      <directory>Classes/Misc/Native</directory>
-      <directory>Classes/PHPUnit</directory>
-      <directory>Classes/Typo3/VersionWrapper</directory>
-    </exclude>
-    <report>
-      <clover outputFile="Tests/phpunit_result/tests-clover.xml"/>
-      <html outputDirectory="Tests/phpunit_result/codeCoverage" lowUpperBound="50" highLowerBound="80"/>
-    </report>
-  </coverage>
-  <php>
-    <ini name="error_reporting" value="-1"/>
-    <env name="APP_ENV" value="test"/>
-    <env name="TYPO3_CONTEXT" value="Testing"/>
-    <env name="APP_SECRET" value="TESTING_SECRET"/>
-  </php>
-  <testsuites>
-    <testsuite name="Unit Tests">
-      <directory>Tests/Unit</directory>
-    </testsuite>
-    <!--testsuite name="Integration Tests">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/7.5/phpunit.xsd"
+         backupGlobals="true"
+         bootstrap=".Build/vendor/typo3/testing-framework/Resources/Core/Build/UnitTestsBootstrap.php"
+         colors="true"
+         failOnRisky="true"
+         failOnWarning="true"
+         beStrictAboutTestsThatDoNotTestAnything="true"
+>
+    <php>
+        <ini name="error_reporting" value="-1" />
+        <env name="APP_ENV" value="test" />
+        <env name="TYPO3_CONTEXT" value="Testing" />
+        <env name="APP_SECRET" value="TESTING_SECRET" />
+    </php>
+
+    <testsuites>
+        <testsuite name="Unit Tests">
+            <directory>Tests/Unit</directory>
+        </testsuite>
+        <!--testsuite name="Integration Tests">
             <directory>Tests/Integration</directory>
         </testsuite-->
-  </testsuites>
-  <logging>
-    <junit outputFile="Tests/phpunit_result/tests-junit.xml"/>
-  </logging>
+    </testsuites>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">Classes</directory>
+            <exclude>
+                <directory>Classes/Interfaces</directory>
+                <directory>Classes/Misc/Native</directory>
+                <directory>Classes/PHPUnit</directory>
+                <directory>Classes/Typo3/VersionWrapper</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+
+    <logging>
+        <log type="coverage-clover"
+             target="Tests/phpunit_result/tests-clover.xml"/>
+        <log type="junit"
+             target="Tests/phpunit_result/tests-junit.xml"/>
+        <log type="coverage-html"
+             target="Tests/phpunit_result/codeCoverage"
+             lowUpperBound="50" highLowerBound="80"/>
+    </logging>
 </phpunit>
