@@ -20,11 +20,6 @@ class CacheService implements CacheServiceInterface, SingletonInterface
     protected const DEFAULT_TTL = 3600;
 
     /**
-     * @var string
-     */
-    private static $cacheKey = '';
-
-    /**
      * @var BackendInterface|null
      */
     private static $cacheInstance = null;
@@ -244,9 +239,6 @@ class CacheService implements CacheServiceInterface, SingletonInterface
      */
     private function getGlobalCacheKey(string $context): string
     {
-        if (self::$cacheKey === '') {
-            self::$cacheKey = sha1(__CLASS__.__FILE__.$context);
-        }
-        return self::$cacheKey;
+        return sha1(__CLASS__.__FILE__.$context);
     }
 }
