@@ -89,6 +89,9 @@ class CacheService implements CacheServiceInterface, SingletonInterface
      * @param string $key
      * @param string $context
      * @return bool
+     * @throws Exception\DuplicateIdentifierException
+     * @throws Exception\InvalidBackendException
+     * @throws Exception\InvalidCacheException
      */
     public function destroy(string $key, string $context = CacheServiceInterface::CONTEXT_GLOBAL): bool
     {
@@ -108,6 +111,9 @@ class CacheService implements CacheServiceInterface, SingletonInterface
      * @param string $context
      * @param bool $exists
      * @return array|false|mixed|string
+     * @throws Exception\DuplicateIdentifierException
+     * @throws Exception\InvalidBackendException
+     * @throws Exception\InvalidCacheException
      */
     private function get(string $key, string $context ,bool &$exists)
     {
@@ -135,6 +141,9 @@ class CacheService implements CacheServiceInterface, SingletonInterface
      * @param string $context
      * @param int|null $ttl
      * @throws CacheException
+     * @throws Exception\DuplicateIdentifierException
+     * @throws Exception\InvalidBackendException
+     * @throws Exception\InvalidCacheException
      */
     private function set(string $key, $content, string $context, int $ttl = null)
     {
@@ -182,10 +191,13 @@ class CacheService implements CacheServiceInterface, SingletonInterface
 
     /**
      * @param string $context
+     * @throws Exception\DuplicateIdentifierException
+     * @throws Exception\InvalidBackendException
+     * @throws Exception\InvalidCacheException
      */
     private function initCacheBag(string $context)
     {
-        // read only if we dont have a copy in memory, to reduce I/O
+        // read only if we don't have a copy in memory, to reduce I/O
         if (isset(self::$cacheBag[$context])) {
             return;
         }
@@ -199,13 +211,13 @@ class CacheService implements CacheServiceInterface, SingletonInterface
             }
         }
 
-        if (is_array($data)) {
-            self::$cacheBag[$context] = new ConfigurationBag($data);
-        } else {
-            // delete invalid cache
+        if (!is_array($data)) {
             $instance->remove($this->getGlobalCacheKey($context));
             $instance->flush();
+            $data = [];
         }
+
+        self::$cacheBag[$context] = new ConfigurationBag($data);
     }
 
     /**
@@ -222,7 +234,8 @@ class CacheService implements CacheServiceInterface, SingletonInterface
             return 0;
         }
 
-        return time() + $ttl;
+        $currentTime = time();
+        return $currentTime + $ttl;
     }
 
     /**
