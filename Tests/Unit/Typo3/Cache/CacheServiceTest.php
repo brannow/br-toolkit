@@ -146,4 +146,60 @@ class CacheServiceTest extends TestCase
         // new result is returned
         $this->assertSame('exists2', $result);
     }
+    
+    public function testCorruptCacheFile()
+    {
+        $oldErrorLevel = error_reporting();
+        // disable notice for the sake of this test, on most prod systems notices are also disabled
+        error_reporting(E_ALL & ~E_NOTICE);
+
+        $this->cacheAdapter->expects($this->once())
+            ->method('get')
+            // set the offset of "s" to an invalid count
+            ->willReturn('s:0:"corrupt";');
+
+        $this->cacheAdapter->expects($this->once())
+            ->method('remove');
+        $this->cacheAdapter->expects($this->once())
+            ->method('flush');
+
+        $result = $this->service->cache(
+            'test',
+            function () {
+                return 'success';
+            },
+            'testInvalidCacheFile'
+        );
+
+        error_reporting($oldErrorLevel);
+        $this->assertSame('success', $result);
+    }
+
+    public function testInvalidCacheFile()
+    {
+        $oldErrorLevel = error_reporting();
+        // disable notice for the sake of this test, on most prod systems notices are also disabled
+        error_reporting(E_ALL & ~E_NOTICE);
+
+        $this->cacheAdapter->expects($this->once())
+            ->method('get')
+            // set the offset of "s" to an invalid count
+            ->willReturn('INVALID');
+
+        $this->cacheAdapter->expects($this->once())
+            ->method('remove');
+        $this->cacheAdapter->expects($this->once())
+            ->method('flush');
+
+        $result = $this->service->cache(
+            'test',
+            function () {
+                return 'success';
+            },
+            'testInvalidCacheFile'
+        );
+
+        error_reporting($oldErrorLevel);
+        $this->assertSame('success', $result);
+    }
 }
