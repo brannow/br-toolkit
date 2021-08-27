@@ -11,7 +11,6 @@ use TYPO3\CMS\Core\Cache\Exception;
 use TYPO3\CMS\Core\Cache\Backend\BackendInterface;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\SingletonInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class CacheService implements CacheServiceInterface, SingletonInterface
 {
@@ -200,7 +199,13 @@ class CacheService implements CacheServiceInterface, SingletonInterface
             }
         }
 
-        self::$cacheBag[$context] = new ConfigurationBag($data);
+        if (is_array($data)) {
+            self::$cacheBag[$context] = new ConfigurationBag($data);
+        } else {
+            // delete invalid cache
+            $instance->remove($this->getGlobalCacheKey($context));
+            $instance->flush();
+        }
     }
 
     /**
@@ -217,8 +222,7 @@ class CacheService implements CacheServiceInterface, SingletonInterface
             return 0;
         }
 
-        $currentTime = time();
-        return $currentTime + $ttl;
+        return time() + $ttl;
     }
 
     /**
