@@ -168,7 +168,7 @@ class CacheServiceTest extends TestCase
             function () {
                 return 'success';
             },
-            'testInvalidCacheFile'
+            'testCorruptCacheFile'
         );
 
         error_reporting($oldErrorLevel);
