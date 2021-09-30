@@ -131,7 +131,7 @@ class CacheService implements CacheServiceInterface, SingletonInterface
             return '';
         }
 
-        if ((self::$cacheBag[$context][$stableKey][self::KEY_RAW]??true) === true) {
+        if ((self::$cacheBag[$context][$stableKey][self::KEY_RAW]??true)) {
             $crc = crc32($content);
             $content = self::$cacheBag[$context][$stableKey][self::KEY_CONTENT] = unserialize($content);
             self::$cacheBag[$context][$stableKey][self::KEY_RAW] = false;
@@ -256,9 +256,12 @@ class CacheService implements CacheServiceInterface, SingletonInterface
     {
         $serializedData = [];
         foreach ($data as $key => $item) {
-            $content = $item[self::KEY_CONTENT];
             $serializedData[$key][self::KEY_TTL] = $item[self::KEY_TTL];
-            $serializedData[$key][self::KEY_CONTENT] = serialize($content);
+            if (!($item[self::KEY_RAW]??true)) {
+                $serializedData[$key][self::KEY_CONTENT] = serialize($item[self::KEY_CONTENT]);
+            } else {
+                $serializedData[$key][self::KEY_CONTENT] = $item[self::KEY_CONTENT];
+            }
             $serializedData[$key][self::KEY_RAW] = true;
         }
 
