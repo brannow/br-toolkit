@@ -132,8 +132,13 @@ class CacheService implements CacheServiceInterface, SingletonInterface
         }
 
         if ((self::$cacheBag[$context][$stableKey][self::KEY_RAW]??true) === true) {
+            $crc = crc32($content);
             $content = self::$cacheBag[$context][$stableKey][self::KEY_CONTENT] = unserialize($content);
             self::$cacheBag[$context][$stableKey][self::KEY_RAW] = false;
+            if ($content === false || (is_string($content) && crc32($content) === $crc)) {
+                $this->destroy($stableKey, $context);
+                $content = self::NOT_FOUND_BLOCK;
+            }
         }
 
         return $content;
