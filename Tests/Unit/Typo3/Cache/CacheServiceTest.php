@@ -51,7 +51,11 @@ class CacheServiceTest extends TestCase
             ->with($this->anything(), $this->callback( function (string $data) {
                 $container = unserialize($data);
 
-                return $container['randomKey']['content']??false;
+                $this->assertArrayHasKey('raw', $container['randomKey']);
+                $this->assertTrue($container['randomKey']['raw']);
+                $this->assertSame(serialize(true), $container['randomKey']['content']);
+
+                return true;
             }), [], 0);
         $result = $this->service->cache('randomKey', function () {
             return true;
@@ -91,13 +95,52 @@ class CacheServiceTest extends TestCase
             ->willReturn(serialize([
                 'randomKey_EXISTS' => [
                     'content' => 3,
+                    'raw' => false,
                     'ttl' => time() + 3600
                 ]
             ]));
 
         $result = $this->service->cache('randomKey_EXISTS', function () {
             return 5;
-        }, 'test_exists', 1);
+        }, 'test_exists4', 1);
+
+        $this->assertSame(3, $result);
+    }
+
+    public function testExistingCacheUnSerializedEntry()
+    {
+        $this->cacheAdapter->expects($this->once())
+            ->method('get')
+            ->willReturn(serialize([
+                'randomKey_EXISTS__' => [
+                    'content' => serialize(3),
+                    'raw' => true,
+                    'ttl' => time() + 3600
+                ]
+            ]));
+
+        $result = $this->service->cache('randomKey_EXISTS__', function () {
+            return 5;
+        }, 'test_exists3', 1);
+
+        $this->assertSame(3, $result);
+    }
+
+    public function testExistingCacheSerializeInvalidEntry()
+    {
+        $this->cacheAdapter->expects($this->once())
+            ->method('get')
+            ->willReturn(serialize([
+                'randomKey_EXISTS_' => [
+                    'content' => 3,
+                    'raw' => false,
+                    'ttl' => time() + 3600
+                ]
+            ]));
+
+        $result = $this->service->cache('randomKey_EXISTS_', function () {
+            return 5;
+        }, 'test_exists2', 1);
 
         $this->assertSame(3, $result);
     }
