@@ -5,8 +5,6 @@ namespace BR\Toolkit\Typo3\Cache;
 
 
 use BR\Toolkit\Exceptions\CacheException;
-use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBag;
-use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBagInterface;
 use TYPO3\CMS\Core\Cache\Exception;
 use TYPO3\CMS\Core\Cache\Backend\BackendInterface;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
@@ -19,13 +17,17 @@ class CacheService implements CacheServiceInterface, SingletonInterface
     // in seconds
     protected const DEFAULT_TTL = 3600;
 
+    private const KEY_TTL = 'ttl';
+    private const KEY_CONTENT = 'content';
+    private const KEY_RAW = 'raw';
+
     /**
      * @var BackendInterface|null
      */
     private static $cacheInstance = null;
 
     /**
-     * @var ConfigurationBagInterface[]
+     * @var array[]
      */
     private static $cacheBag = [];
 
@@ -91,13 +93,14 @@ class CacheService implements CacheServiceInterface, SingletonInterface
     public function destroy(string $key, string $context = CacheServiceInterface::CONTEXT_GLOBAL): bool
     {
         $this->initCacheBag($context);
-        $data = self::$cacheBag[$context]->getData();
+        $stableKey = $this->sanitizeKey($key);
+        $data = self::$cacheBag[$context];
 
-        if (!isset($data[$key])) {
+        if (!isset($data[$stableKey])) {
             return false;
         }
-        unset($data[$key]);
-        self::$cacheBag[$context] = new ConfigurationBag($data);
+        unset($data[$stableKey]);
+        self::$cacheBag[$context] = $data;
         return $this->storeCacheBag($context);
     }
 
@@ -110,21 +113,27 @@ class CacheService implements CacheServiceInterface, SingletonInterface
      * @throws Exception\InvalidBackendException
      * @throws Exception\InvalidCacheException
      */
-    private function get(string $key, string $context ,bool &$exists)
+    private function get(string $key, string $context, bool &$exists)
     {
         $exists = true;
         $this->initCacheBag($context);
-        $content = self::$cacheBag[$context]->getValueFromArrayPath($key . '.content', self::NOT_FOUND_BLOCK);
-        $ttl = (int)self::$cacheBag[$context]->getValueFromArrayPath($key . '.ttl', -1);
+        $stableKey = $this->sanitizeKey($key);
+        $content = self::$cacheBag[$context][$stableKey][self::KEY_CONTENT]??self::NOT_FOUND_BLOCK;
+        $ttl = (int)(self::$cacheBag[$context][$stableKey][self::KEY_TTL]??-1);
 
         if ($ttl > 0 && time() > $ttl) {
-            $this->destroy($key, $context);
+            $this->destroy($stableKey, $context);
             $content = self::NOT_FOUND_BLOCK;
         }
 
         if ($content === self::NOT_FOUND_BLOCK) {
             $exists = false;
             return '';
+        }
+
+        if ((self::$cacheBag[$context][$stableKey][self::KEY_RAW]??true) === true) {
+            $content = self::$cacheBag[$context][$stableKey][self::KEY_CONTENT] = unserialize($content);
+            self::$cacheBag[$context][$stableKey][self::KEY_RAW] = false;
         }
 
         return $content;
@@ -147,10 +156,12 @@ class CacheService implements CacheServiceInterface, SingletonInterface
         }
 
         $this->initCacheBag($context);
-        $data = self::$cacheBag[$context]->getData();
-        $data[$key]['content'] = $content;
-        $data[$key]['ttl'] = $this->getExpireTime($ttl);
-        self::$cacheBag[$context] = new ConfigurationBag($data);
+        $data = self::$cacheBag[$context];
+        $stableKey = $this->sanitizeKey($key);
+        $data[$stableKey][self::KEY_CONTENT] = $content;
+        $data[$stableKey][self::KEY_TTL] = $this->getExpireTime($ttl);
+        $data[$stableKey][self::KEY_RAW] = false;
+        self::$cacheBag[$context] = $data;
         $this->storeCacheBag($context);
     }
 
@@ -164,10 +175,10 @@ class CacheService implements CacheServiceInterface, SingletonInterface
     private function storeCacheBag(string $context): bool
     {
         $this->initCacheBag($context);
-        $data = self::$cacheBag[$context]->getData();
+        $data = self::$cacheBag[$context];
         $instance = $this->getCacheInstance();
         if ($instance !== null) {
-            $dataString = serialize($data);
+            $dataString = $this->serializeData($data);
             $checksum = crc32($dataString);
             try {
                 // write only if there are changes, to reduce I/O
@@ -212,7 +223,7 @@ class CacheService implements CacheServiceInterface, SingletonInterface
             $data = [];
         }
 
-        self::$cacheBag[$context] = new ConfigurationBag($data);
+        self::$cacheBag[$context] = $data;
     }
 
     /**
@@ -229,8 +240,33 @@ class CacheService implements CacheServiceInterface, SingletonInterface
             return 0;
         }
 
-        $currentTime = time();
-        return $currentTime + $ttl;
+        return time() + $ttl;
+    }
+
+    /**
+     * @param array $data
+     * @return string
+     */
+    private function serializeData(array $data): string
+    {
+        $serializedData = [];
+        foreach ($data as $key => $item) {
+            $content = $item[self::KEY_CONTENT];
+            $serializedData[$key][self::KEY_TTL] = $item[self::KEY_TTL];
+            $serializedData[$key][self::KEY_CONTENT] = serialize($content);
+            $serializedData[$key][self::KEY_RAW] = true;
+        }
+
+        return serialize($serializedData);
+    }
+
+    /**
+     * @param string $key
+     * @return string
+     */
+    private function sanitizeKey(string $key): string
+    {
+        return $key;
     }
 
     /**
@@ -239,6 +275,6 @@ class CacheService implements CacheServiceInterface, SingletonInterface
      */
     private function getGlobalCacheKey(string $context): string
     {
-        return sha1(__CLASS__.__FILE__.$context);
+        return sha1($context);
     }
 }
