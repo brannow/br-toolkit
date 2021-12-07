@@ -8,10 +8,14 @@ use BR\Toolkit\Exceptions\CacheException;
 use TYPO3\CMS\Core\Cache\Exception;
 use TYPO3\CMS\Core\Cache\Backend\BackendInterface;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\SingletonInterface;
 
 class CacheService implements CacheServiceInterface, SingletonInterface
 {
+    private const DEBUG_CACHE_CONTEXT = 'DEBUG_CACHE_KEY_CONTEXT';
+    private const DEBUG_CACHE_KEY_LIST = 'debug_cache_keys';
+
     private const NOT_FOUND_BLOCK = 'NOT_FOUND_TRIGGER_BLOCK_0x011011';
 
     // in seconds
@@ -189,6 +193,12 @@ class CacheService implements CacheServiceInterface, SingletonInterface
                 // write only if there are changes, to reduce I/O
                 if (self::$cacheMutationFlag[$context]??null !== $checksum) {
                     self::$cacheMutationFlag[$context] = $checksum;
+
+                    try {
+                        // DEBUG ONLY
+                        $this->debugSetNewCacheBag($context);
+                    } catch (CacheException $e) {}
+
                     $instance->set($this->getGlobalCacheKey($context), $dataString, [], 0);
                 }
 
@@ -198,6 +208,61 @@ class CacheService implements CacheServiceInterface, SingletonInterface
         }
 
         return true;
+    }
+
+    /**
+     * @param string $context
+     * @return void
+     * @throws CacheException
+     * @throws Exception\DuplicateIdentifierException
+     * @throws Exception\InvalidBackendException
+     * @throws Exception\InvalidCacheException
+     */
+    private function debugSetNewCacheBag(string $context): void
+    {
+        if (!Environment::getContext()->isDevelopment() || $context === self::DEBUG_CACHE_CONTEXT) {
+            return;
+        }
+
+        $list = $this->debugGetCacheContextList();
+        if (!in_array($context, $list)) {
+            $list[] = $context;
+            $this->set(self::DEBUG_CACHE_KEY_LIST, $list, self::DEBUG_CACHE_CONTEXT, 0);
+        }
+    }
+
+    /**
+     * @internal
+     * @return array
+     */
+    public function debugGetCacheContextList(): array
+    {
+        $isNew = false;
+        $list = [];
+        try {
+            $list = $this->get(self::DEBUG_CACHE_KEY_LIST, self::DEBUG_CACHE_CONTEXT, $isNew);
+        } catch (Exception\DuplicateIdentifierException|Exception\InvalidCacheException|Exception\InvalidBackendException $e) {}
+        if (!$isNew || !is_array($list)) {
+            $list = [];
+        }
+
+        return $list;
+    }
+
+    /**
+     * @internal
+     * @param string $context
+     * @return array
+     */
+    public function debugGetCacheContextContent(string $context): array
+    {
+        try {
+            $this->initCacheBag($context);
+        } catch (Exception\DuplicateIdentifierException|Exception\InvalidBackendException|Exception\InvalidCacheException $e) {
+            return [];
+        }
+
+        return self::$cacheBag[$context]??[];
     }
 
     /**
