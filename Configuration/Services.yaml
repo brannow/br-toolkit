@@ -7,3 +7,12 @@ services:
   BR\Toolkit\:
     resource: '../Classes/*'
     exclude: ['../Classes/{Misc/DTO,Typo3/DTO,PHPUnit,Exceptions}']
+
+
+  BR\Toolkit\Typo3\Cache\Command\CacheCommand:
+    tags:
+      - name: 'console.command'
+        command: 'brt:cache'
+        description: 'BR-Toolkit Cache Command'
+        hidden: false
+        schedulable: false

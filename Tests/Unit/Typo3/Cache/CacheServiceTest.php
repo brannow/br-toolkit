@@ -46,14 +46,20 @@ class CacheServiceTest extends TestCase
 
     public function testWriteToCacheSimple()
     {
-        $this->cacheAdapter->expects($this->once())
+        $this->cacheAdapter->expects($this->exactly(2))
             ->method('set')
             ->with($this->anything(), $this->callback( function (string $data) {
                 $container = unserialize($data);
 
-                $this->assertArrayHasKey('raw', $container['randomKey']);
-                $this->assertTrue($container['randomKey']['raw']);
-                $this->assertSame(serialize(true), $container['randomKey']['content']);
+                if (!array_key_exists('randomKey', $container) && array_key_exists('debug_cache_keys', $container)) {
+                    $data = unserialize($container['debug_cache_keys']['content']);
+                    $this->assertEquals(CacheService::CONTEXT_GLOBAL, $data[0]);
+                } else {
+                    $data = unserialize($container['randomKey']['content']);
+                    $this->assertArrayHasKey('raw', $container['randomKey']);
+                    $this->assertTrue($container['randomKey']['raw']);
+                    $this->assertSame(true, $data);
+                }
 
                 return true;
             }), [], 0);
@@ -155,7 +161,7 @@ class CacheServiceTest extends TestCase
 
     public function testFailedCacheAdapterStorage()
     {
-        $this->cacheAdapter->expects($this->once())
+        $this->cacheAdapter->expects($this->exactly(2))
             ->method('set')
             ->willThrowException(new \TYPO3\CMS\Core\Cache\Exception('test'));
 
