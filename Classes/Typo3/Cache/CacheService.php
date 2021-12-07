@@ -220,7 +220,7 @@ class CacheService implements CacheServiceInterface, SingletonInterface
      */
     private function debugSetNewCacheBag(string $context): void
     {
-        if (!Environment::getContext()->isDevelopment() || $context === self::DEBUG_CACHE_CONTEXT) {
+        if (Environment::getContext()->isProduction() || $context === self::DEBUG_CACHE_CONTEXT) {
             return;
         }
 
