@@ -6,6 +6,7 @@ use BR\Toolkit\Typo3\Cache\CacheService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class CacheCommand extends Command
@@ -31,7 +32,7 @@ class CacheCommand extends Command
     {
         $this->addArgument('list', InputArgument::OPTIONAL, 'List Cache Context, Keys, TTL and Sizes (only work in Debug Context)', '');
         $this->addArgument('show', InputArgument::OPTIONAL, 'Show Cache Context Content (only work in Debug Context)', '');
-
+        $this->addOption('key', 'k',  InputOption::VALUE_OPTIONAL, 'to show only a specific Cache Key (works only in "show")', '');
     }
 
     /**
@@ -43,14 +44,14 @@ class CacheCommand extends Command
     {
         $verbose = $input->getOption('verbose');
 
-
         if ($input->getArgument('list') === 'list') {
             foreach ($this->cacheService->debugGetCacheContextList() as $context) {
-                $this->processCacheContext($context, $output);
+                $this->processCacheContext($context, $output, '', $verbose);
             }
-        } elseif ($input->hasArgument('show')) {
+        } elseif ($input->getArgument('list') === 'show' && $input->getArgument('show') !== '') {
             $contextName = $input->getArgument('show');
-            $this->printCacheContext($contextName, $output, $verbose);
+            $cacheKey = $input->getOption('key');
+            $this->printCacheContext($contextName, $output, $cacheKey, $verbose);
         }
 
 
@@ -60,21 +61,23 @@ class CacheCommand extends Command
     /**
      * @param string $context
      * @param OutputInterface $output
+     * @param string $singleKey
      * @param bool $verbose
      * @return void
      */
-    protected function printCacheContext(string $context, OutputInterface $output, bool $verbose = false): void
+    protected function printCacheContext(string $context, OutputInterface $output, string $singleKey = '', bool $verbose = false): void
     {
-        $this->processCacheContext($context, $output, $verbose);
+        $this->processCacheContext($context, $output, $singleKey, $verbose);
     }
 
     /**
      * @param string $cacheContext
      * @param OutputInterface $output
+     * @param string $cacheKey
      * @param bool $details
      * @return void
      */
-    protected function processCacheContext(string $cacheContext, OutputInterface $output, bool $details = false): void
+    protected function processCacheContext(string $cacheContext, OutputInterface $output, string $cacheKey = '', bool $details = false): void
     {
         $output->writeln('');
         $output->writeln('--- ' . $cacheContext . ' --- ');
@@ -84,14 +87,19 @@ class CacheCommand extends Command
         $output->writeln('');
 
         $output->write('key');
-        $output->write("\t\t\t\t".'type');
-        $output->writeln("\t".'ttl');
+        $output->write("\t\t\t".'type');
+        $output->write("\t".'expire in');
         $output->writeln("\t".'size');
         $output->writeln('----------------------------------------------------------------------------');
 
-        foreach ($content as $key => $cacheItem) {
-            $this->processCacheContentItem($cacheContext, $key, $cacheItem, $output, $details);
+        if ($cacheKey !== '' && isset($content[$cacheKey])) {
+            $this->processCacheContentItem($cacheContext, $cacheKey, $content[$cacheKey], $output, $details);
+        } else {
+            foreach ($content as $key => $cacheItem) {
+                $this->processCacheContentItem($cacheContext, $key, $cacheItem, $output, $details);
+            }
         }
+
         $output->writeln('');
     }
 
@@ -124,7 +132,7 @@ class CacheCommand extends Command
         $output->write("\t");
         $output->write($type);
         $output->write("\t");
-        $output->write($contentItem['ttl']);
+        $output->write($this->seconds2human((int)$contentItem['ttl']));
         $output->write("\t");
         $output->writeln('~'.$this->human_filesize(strlen($rawContent)));
 
@@ -160,6 +168,37 @@ class CacheCommand extends Command
         $size   = array('B', 'kiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB');
         $factor = floor((strlen($bytes) - 1) / 3);
 
-        return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) .' '. @$size[$factor];
+        return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)). @$size[$factor];
+    }
+
+    /**
+     * @param int $ss
+     * @return string
+     */
+    private function seconds2human(int $ss): string
+    {
+        if ($ss === 0) {
+            return 'never';
+        }
+        $ss = $ss - time();
+        $time = [];
+        $time['s'] = $ss%60;
+        $time['m'] = floor(($ss%3600)/60);
+        $time['h'] = floor(($ss%86400)/3600);
+        $time['d'] = floor(($ss%2592000)/86400);
+        $time['M'] = floor($ss/2592000);
+
+        $timeString = [];
+        foreach (array_filter($time) as $name => $value) {
+            if ($value > 0) {
+                $timeString[] = $value . $name;
+            }
+        }
+
+        if (empty($timeString)) {
+            return 'expired!';
+        }
+
+        return implode(', ', array_reverse($timeString));
     }
 }
