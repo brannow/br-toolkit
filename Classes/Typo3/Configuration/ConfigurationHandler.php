@@ -184,7 +184,7 @@ class ConfigurationHandler implements SingletonInterface
     {
         $extensionName = str_replace([' ', '_', '-'], '', strtolower($extName));
         if (strpos($extName, 'tx') === false) {
-            $extensionName = 'tx_' . $extName;
+            $extensionName = 'tx_' . $extensionName;
         }
 
         if ($pluginName !== '') {
