@@ -87,15 +87,21 @@ class ConfigurationHandler implements SingletonInterface
 
     /**
      * @param string $extName
+     * @param string $pluginName
      * @return ConfigurationBagInterface
      */
-    public function getExtensionTypoScript(string $extName): ConfigurationBagInterface
+    public function getExtensionTypoScript(string $extName, string $pluginName = ''): ConfigurationBagInterface
     {
-        if (!isset(self::$bagCache[$extName][self::TYPE_TS])) {
-            self::$bagCache[$extName][self::TYPE_TS] = new ConfigurationBag($this->getTypoScriptConfigForExtension($extName));
+        $subKey = '_';
+        if ($pluginName !== '') {
+            $subKey = $pluginName;
         }
 
-        return self::$bagCache[$extName][self::TYPE_TS];
+        if (!isset(self::$bagCache[$extName][self::TYPE_TS][$subKey])) {
+            self::$bagCache[$extName][self::TYPE_TS][$subKey] = new ConfigurationBag($this->getTypoScriptConfigForExtension($extName, $pluginName));
+        }
+
+        return self::$bagCache[$extName][self::TYPE_TS][$subKey];
     }
 
     /**
@@ -171,14 +177,18 @@ class ConfigurationHandler implements SingletonInterface
 
     /**
      * @param string $extName
-     * @return array
-     * @throws
+     * @param string $pluginName
+     * @return array|array[]
      */
-    private function getTypoScriptConfigForExtension(string $extName): array
+    private function getTypoScriptConfigForExtension(string $extName, string $pluginName = ''): array
     {
         $extensionName = str_replace([' ', '_', '-'], '', strtolower($extName));
-        if (strpos($extensionName, 'tx_') === false) {
-            $extensionName = 'tx_' . $extensionName;
+        if (strpos($extName, 'tx') === false) {
+            $extensionName = 'tx_' . $extName;
+        }
+
+        if ($pluginName !== '') {
+            $extensionName .= '_' . $pluginName;
         }
 
         $config = $this->getTypoScriptConfig();
