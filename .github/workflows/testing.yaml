@@ -30,3 +30,4 @@ jobs:
         typo3-version:
           - 9.5
           - 10.4
+          - 11.5
