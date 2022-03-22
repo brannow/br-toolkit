@@ -20,6 +20,7 @@ use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Package\PackageManager;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
+use TYPO3\CMS\Core\TypoScript\TemplateService;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 use TYPO3\CMS\Frontend\Configuration\TypoScript\ConditionMatching\ConditionMatcher;
 use TYPO3\CMS\Frontend\Middleware\TypoScriptFrontendInitialization;
@@ -162,7 +163,23 @@ class FrontendUtilityTest extends TestCase
                         'SYS_LASTCHANGED' => 0,
                         'extendToSubpages' => false
                     ],
-                    '1=1','1=1',[], ['data'], [
+                    '1=1','1=1',[
+                        0 => [
+                            'uid' => 1,
+                            'pid' => 0,
+                            'hidden' => 0,
+                            'starttime' => 0,
+                            'is_siteroot' => 1,
+                            'endtime' => 0,
+                            'title' => 'Startseite',
+                            'sys_language_uid' => 0,
+                            'doktype' => 0,
+                            'tstamp' => 0,
+                            'SYS_LASTCHANGED' => 0,
+                            'extendToSubpages' => false,
+                            'tsconfig_includes' => ''
+                        ]
+                    ], ['data'], [
                     'constants' => [],
                     'setup' => [
                         'types.' => [
@@ -176,6 +193,13 @@ class FrontendUtilityTest extends TestCase
                 ],
                     '1=1','1=1','1=1','1=1','1=1','1=1'
                 );
+
+        $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['Core/TypoScript/TemplateService']['runThroughTemplatesPostProcessing'][] = function (array $data, TemplateService $service) {
+            $service->loaded = true;
+            $service->setup = [
+                '.' => ['1']
+            ];
+        };
 
         $tsfe = FrontendUtility::getFrontendController();
         $this->assertEquals(1, $tsfe->id);
