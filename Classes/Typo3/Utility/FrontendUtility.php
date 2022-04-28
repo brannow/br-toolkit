@@ -10,6 +10,7 @@ use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Cache\Frontend\NullFrontend;
 use TYPO3\CMS\Core\Cache\Frontend\VariableFrontend;
+use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Http\ServerRequestFactory;
 use TYPO3\CMS\Core\Routing\PageArguments;
@@ -95,6 +96,7 @@ abstract class FrontendUtility
         }
 
         $request = $GLOBALS['TYPO3_REQUEST'] ?? ServerRequestFactory::fromGlobals();
+
         $frontendUser = InstanceUtility::get(FrontendUserAuthentication::class);
         $frontendUser->start();
         $frontendUser->unpack_uc();
@@ -102,7 +104,8 @@ abstract class FrontendUtility
         $request = $request->withAttribute('language', $siteLanguage)
             ->withAttribute('site', $site)
             ->withAttribute('frontend.user', $frontendUser)
-            ->withAttribute('routing', $pageArguments);
+            ->withAttribute('routing', $pageArguments)
+            ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE);
 
         /** @var FrontendInterface $nullFrontend */
         if (class_exists(NullFrontend::class)) {
@@ -132,20 +135,12 @@ abstract class FrontendUtility
         $tsfeInit->process($request, new FakeMiddlewareHandler());
         $GLOBALS['TYPO3_REQUEST'] = $request;
 
-        if (defined('TYPO3_branch') && strpos(TYPO3_branch, '9') === 0) {
-            $GLOBALS['TSFE']->sys_page = InstanceUtility::get(\TYPO3\CMS\Frontend\Page\PageRepository::class);
-            $GLOBALS['TSFE']->getPageAndRootlineWithDomain($site->getRootPageId(), $request);
-        }
-
         //$GLOBALS['TSFE']->fe_user = $frontendUser;
         $GLOBALS['TSFE']->getConfigArray($request);
         $GLOBALS['TSFE']->tmpl->start($GLOBALS['TSFE']->rootLine);
 
         // Locks may be acquired here
         $GLOBALS['TSFE']->getFromCache($request);
-        // Get config if not already gotten
-        // Setting language and locale
-        $GLOBALS['TSFE']->settingLanguage($request);
 
         return $GLOBALS['TSFE'];
     }

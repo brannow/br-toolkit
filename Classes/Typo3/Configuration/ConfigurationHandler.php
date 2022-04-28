@@ -2,16 +2,11 @@
 
 namespace BR\Toolkit\Typo3\Configuration;
 
-use BR\Toolkit\Misc\Native\FileHandler;
-use BR\Toolkit\Typo3\Cache\CacheService;
-use BR\Toolkit\Typo3\Cache\CacheServiceInterface;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBag;
 use BR\Toolkit\Typo3\DTO\Configuration\ConfigurationBagInterface;
 use BR\Toolkit\Typo3\VersionWrapper\InstanceUtility;
-use TYPO3\CMS\Core\Configuration\ConfigurationManager;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Configuration\Loader\YamlFileLoader;
-use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
@@ -165,11 +160,9 @@ class ConfigurationHandler implements SingletonInterface
     private function getTypoScriptConfig(): array
     {
         if (empty(self::$typoScriptRuntimeCache) && $this->configurationManager) {
-            try {
-                self::$typoScriptRuntimeCache = GeneralUtility::removeDotsFromTS($this->configurationManager->getConfiguration(
-                    ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
-                )??[]);
-            } catch (Exception $exception) {}
+            self::$typoScriptRuntimeCache = GeneralUtility::removeDotsFromTS($this->configurationManager->getConfiguration(
+                ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
+            )??[]);
         }
 
         return self::$typoScriptRuntimeCache;

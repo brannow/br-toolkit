@@ -156,17 +156,6 @@ class ConfigurationHandlerTest extends TestCase
         ]);
     }
 
-    public function testTSLoadingException()
-    {
-        $this->reflectionTypoScriptRuntimeCache->setValue($this->handler, []);
-        $this->reflectionBagCache->setValue($this->handler, []);
-        $this->typoConfigManager->expects($this->once())
-            ->method('getConfiguration')
-            ->willThrowException(new Exception('TEST'));
-        $r = $this->handler->getExtensionTypoScript('test_ext_notFound');
-        $this->assertEquals(['module' => [], 'plugin' => []], $r->getData());
-    }
-
     public function testTSLoading()
     {
         $r = $this->handler->getExtensionTypoScript('test_ext_notFound');

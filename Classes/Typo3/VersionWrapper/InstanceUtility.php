@@ -13,16 +13,9 @@ abstract class InstanceUtility
      * @param string $className
      * @param ...$arguments
      * @return object|\Psr\Log\LoggerAwareInterface|\TYPO3\CMS\Core\SingletonInterface
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
     public static function get(string $className, ...$arguments)
     {
-        if (defined('TYPO3_branch') && strpos(TYPO3_branch, '9') === 0) {
-            /** @var ObjectManager $om */
-            $om = GeneralUtility::makeInstance(ObjectManager::class);
-            return $om->get($className, ...$arguments);
-        } else {
-            return GeneralUtility::makeInstance($className, ...$arguments);
-        }
+        return GeneralUtility::makeInstance($className, ...$arguments);
     }
 }
