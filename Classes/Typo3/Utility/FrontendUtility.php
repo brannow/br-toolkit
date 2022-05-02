@@ -20,7 +20,6 @@ use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
-use TYPO3\CMS\Extbase\Service\EnvironmentService;
 use TYPO3\CMS\Extbase\Service\ExtensionService;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
@@ -204,12 +203,9 @@ abstract class FrontendUtility
             $contentObjectRenderer = InstanceUtility::get(ContentObjectRenderer::class);
             /** @var ConfigurationManager $configurationManager */
             $configurationManager = InstanceUtility::get(ConfigurationManager::class);
-            /** @var EnvironmentService $envService */
-            $envService = InstanceUtility::get(EnvironmentService::class);
             /** @var ExtensionService $extService */
             $extService = InstanceUtility::get(ExtensionService::class);
             $configurationManager->setContentObject($contentObjectRenderer);
-            $uriBuilder->injectEnvironmentService($envService);
             $uriBuilder->injectConfigurationManager($configurationManager);
             $uriBuilder->injectExtensionService($extService);
             $uriBuilder->initializeObject();
