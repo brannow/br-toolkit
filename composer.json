@@ -19,9 +19,9 @@
     "require": {
         "php": "^7.4",
         "ext-curl": "*",
-        "ext-openssl": "*",
         "ext-json": "*",
-        "typo3/minimal": "^11.5"
+        "ext-openssl": "*",
+        "typo3/minimal": "11.5"
     },
     "require-dev": {
         "phpunit/phpunit": "^8",

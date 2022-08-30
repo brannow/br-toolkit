@@ -8,14 +8,17 @@ use BR\Toolkit\Typo3\Utility\FrontendUtility;
 use BR\Toolkit\Typo3\VersionWrapper\InstanceUtility;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\ForwardCompatibility\DriverStatement;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Backend\FrontendBackendUserAuthentication;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\VariableFrontend;
+use TYPO3\CMS\Core\Context\UserAspect;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Query\Restriction\QueryRestrictionContainerInterface;
+use TYPO3\CMS\Core\ExpressionLanguage\ProviderConfigurationLoader;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Package\PackageManager;
 use TYPO3\CMS\Core\Site\Entity\Site;
@@ -30,6 +33,12 @@ class FrontendUtilityTest extends TestCase
 {
     /** @var MockDiContainer */
     private $container = null;
+    /** @var Context */
+    private Context $context;
+    /** @var MockObject|UserAspect */
+    private $frontendUserAspect;
+    /** @var MockObject|UserAspect */
+    private $backendUserAspect;
 
     public function setUp(): void
     {
@@ -43,9 +52,43 @@ class FrontendUtilityTest extends TestCase
         $frontendUserAuth = $this->getMockBuilder(FrontendUserAuthentication::class)->disableOriginalConstructor()->getMock();
         $this->container->set(FrontendUserAuthentication::class, $frontendUserAuth);
 
-        $init = new TypoScriptFrontendInitialization(InstanceUtility::get(Context::class));
+        $backendUserAuth = $this->getMockBuilder(FrontendBackendUserAuthentication::class)->disableOriginalConstructor()->getMock();
+        $this->container->set(FrontendBackendUserAuthentication::class, $backendUserAuth);
+
+        $init = new TypoScriptFrontendInitialization($this->context = InstanceUtility::get(Context::class));
         $this->container->set(TypoScriptFrontendInitialization::class, $init);
 
+        $providerConfigurationLoader = $this->getMockBuilder(ProviderConfigurationLoader::class)->disableOriginalConstructor()->getMock();
+        $this->container->set(ProviderConfigurationLoader::class, $providerConfigurationLoader);
+
+        $this->backendUserAspect = $this->getMockBuilder(UserAspect::class)->getMock();
+        $this->frontendUserAspect = $this->getMockBuilder(UserAspect::class)->getMock();
+        $frontendUserAuth->expects($this->any())
+            ->method('createUserAspect')
+            ->willReturn($this->frontendUserAspect);
+        $this->context->setAspect('backend.user', $this->backendUserAspect);
+
+        $this->frontendUserAspect->expects($this->any())
+            ->method('get')
+            ->willReturnCallback(
+                function (...$property) {
+                    if ($property[0] === 'groupIds') {
+                        return [];
+                    }
+                    return null;
+                }
+            );
+
+        $this->backendUserAspect->expects($this->any())
+            ->method('get')
+            ->willReturnCallback(
+                function (...$property) {
+                    if ($property[0] === 'groupIds') {
+                        return [];
+                    }
+                    return null;
+                }
+            );
 
         $languageServiceFactory = $this->getMockBuilder(LanguageServiceFactory::class)->disableOriginalConstructor()->getMock();
         $this->container->set(LanguageServiceFactory::class, $languageServiceFactory);
