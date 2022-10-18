@@ -212,6 +212,7 @@ class FrontendUtilityTest extends TestCase
                             'pid' => 0,
                             'hidden' => 0,
                             'starttime' => 0,
+                            'fe_login_mode' => 0,
                             'is_siteroot' => 1,
                             'endtime' => 0,
                             'title' => 'Startseite',
