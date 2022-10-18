@@ -3,7 +3,7 @@
 Function / Class Collection (Toolkit) for everyday usage.
 
 ## Requirements
-* php ^7.4
+* php ^7.4 || ^8.0 || ^8.1
 * php-curl: *
 * php-openssl: *
 * php-json: *
