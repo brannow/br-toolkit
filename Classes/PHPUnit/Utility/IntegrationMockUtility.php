@@ -16,16 +16,18 @@ abstract class IntegrationMockUtility
     /**
      * @template T of object
      * @param TestCase $testCase
-     * @param string|class-string<T> $className
+     * @param string $className
      * @param array $mockList
      * @param array $dependencyList
      * @param array $classAliases
+     * @param MockObject[] $injectMockObjects
      * @return T the created instance
      * @throws ReflectionException
      */
-    public static function createObjectWithDependencies(TestCase $testCase, string $className, array &$mockList, array &$dependencyList, array $classAliases = []): object
+    public static function createObjectWithDependencies(TestCase $testCase, string $className, array &$mockList, array &$dependencyList, array $classAliases = [], array $injectMockObjects = []): object
     {
-        self::$mockCache = [];
+        $mockList = array_unique(array_merge($mockList, array_keys($injectMockObjects)));
+        self::$mockCache = $injectMockObjects;
         self::$dependencyCache = [];
         self::$classAliases = $classAliases;
         $obj = static::initClassNameWithDependencies($testCase, $className, $mockList);
@@ -95,7 +97,7 @@ abstract class IntegrationMockUtility
         $arg = [];
         foreach($methodRef->getParameters() AS $argumentRef) {
             $subClassName = $argumentRef->getType()->getName();
-            if (empty($subClassName) || !class_exists($subClassName)) {
+            if (empty($subClassName) && !class_exists($subClassName)) {
                 continue;
             }
             $arg[] = self::initClassNameWithDependencies($testCase, $subClassName, $mockList);
