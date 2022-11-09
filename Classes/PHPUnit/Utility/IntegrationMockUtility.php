@@ -5,23 +5,25 @@ namespace BR\Toolkit\PHPUnit\Utility;
 use PHPUnit\Framework\MockObject\MockBuilder;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use ReflectionException;
 
 abstract class IntegrationMockUtility
 {
-    private static $mockCache = [];
-    private static $dependencyCache = [];
-    private static $classAliases = [];
+    private static array $mockCache = [];
+    private static array $dependencyCache = [];
+    private static array $classAliases = [];
 
     /**
+     * @template T of object
      * @param TestCase $testCase
-     * @param string $className
+     * @param string|class-string<T> $className
      * @param array $mockList
      * @param array $dependencyList
      * @param array $classAliases
-     * @return object|MockObject
-     * @throws \ReflectionException
+     * @return T the created instance
+     * @throws ReflectionException
      */
-    public static function createObjectWithDependencies(TestCase $testCase, string $className, array &$mockList, array &$dependencyList, array $classAliases = [])
+    public static function createObjectWithDependencies(TestCase $testCase, string $className, array &$mockList, array &$dependencyList, array $classAliases = []): object
     {
         self::$mockCache = [];
         self::$dependencyCache = [];
@@ -35,13 +37,14 @@ abstract class IntegrationMockUtility
     }
 
     /**
+     * @template T of object
      * @param TestCase $testCase
-     * @param string $orgClassName
+     * @param string|class-string<T> $orgClassName
      * @param array $mockList
-     * @return object|MockObject
-     * @throws \ReflectionException
+     * @return T
+     * @throws ReflectionException
      */
-    private static function initClassNameWithDependencies(TestCase $testCase, string $orgClassName, array $mockList)
+    private static function initClassNameWithDependencies(TestCase $testCase, string $orgClassName, array $mockList): object
     {
         // remap class alias
         if (!empty(self::$classAliases[$orgClassName])) {
@@ -56,9 +59,7 @@ abstract class IntegrationMockUtility
         }
 
         $arguments = self::getClassConstructorArguments($testCase, $className, $mockList);
-        $obj = new $className(...$arguments);
-        self::$dependencyCache[$className] = $obj;
-        return $obj;
+        return self::$dependencyCache[$className] = new $className(...$arguments);
     }
 
     /**
@@ -68,14 +69,12 @@ abstract class IntegrationMockUtility
      */
     private static function createMockObject(TestCase $testCase, string $className): MockObject
     {
-        if (!empty(self::$mockCache[$className])) {
-            return self::$mockCache[$className];
-        }
-
-        $mockBuilder = new MockBuilder($testCase ,$className);
-        $mo = $mockBuilder->disableOriginalConstructor()->getMock();
-        self::$mockCache[$className] = $mo;
-        return $mo;
+        return self::$mockCache[$className] ?? (
+            self::$mockCache[$className] =
+                (new MockBuilder($testCase ,$className))
+                    ->disableOriginalConstructor()
+                    ->getMock()
+            );
     }
 
     /**
@@ -83,7 +82,7 @@ abstract class IntegrationMockUtility
      * @param string $className
      * @param array $mockList
      * @return array
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     private static function getClassConstructorArguments(TestCase $testCase, string $className, array $mockList): array
     {
@@ -95,15 +94,11 @@ abstract class IntegrationMockUtility
 
         $arg = [];
         foreach($methodRef->getParameters() AS $argumentRef) {
-            $class = $argumentRef->getClass();
-            if ($class === null) {
+            $subClassName = $argumentRef->getType()->getName();
+            if (empty($subClassName) || !class_exists($subClassName)) {
                 continue;
             }
-
-            $subClassName = $class->getName();
-            if (!empty($subClassName)) {
-                $arg[] = self::initClassNameWithDependencies($testCase, $subClassName, $mockList);
-            }
+            $arg[] = self::initClassNameWithDependencies($testCase, $subClassName, $mockList);
         }
 
         return $arg;
