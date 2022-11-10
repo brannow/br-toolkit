@@ -16,7 +16,7 @@ abstract class IntegrationMockUtility
     /**
      * @template T of object
      * @param TestCase $testCase
-     * @param string $className
+     * @param string|class-string<T> $className
      * @param array $mockList
      * @param array $dependencyList
      * @param array $classAliases
