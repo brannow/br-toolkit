@@ -2,6 +2,7 @@
 
 namespace BR\Toolkit\PHPUnit\Utility;
 
+use Exception;
 use PHPUnit\Framework\MockObject\MockBuilder;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -45,8 +46,9 @@ abstract class IntegrationMockUtility
      * @param array $mockList
      * @return T
      * @throws ReflectionException
+     * @throws Exception
      */
-    private static function initClassNameWithDependencies(TestCase $testCase, string $orgClassName, array $mockList): object
+    private static function initClassNameWithDependencies(TestCase $testCase, string $orgClassName, array $mockList): ?object
     {
         // remap class alias
         if (!empty(self::$classAliases[$orgClassName])) {
@@ -99,6 +101,10 @@ abstract class IntegrationMockUtility
             $subClassName = $argumentRef->getType()->getName();
             if (empty($subClassName) && !class_exists($subClassName)) {
                 continue;
+            }
+
+            if (interface_exists($subClassName)) {
+                throw new Exception('Cannot instance a interface \''. $subClassName .'\' for parent class \''. $className .'\'');
             }
             $arg[] = self::initClassNameWithDependencies($testCase, $subClassName, $mockList);
         }
