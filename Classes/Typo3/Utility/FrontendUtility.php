@@ -19,6 +19,7 @@ use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
+use TYPO3\CMS\Extbase\Mvc\Web\RequestBuilder;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Extbase\Service\ExtensionService;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
@@ -196,11 +197,13 @@ abstract class FrontendUtility
     public static function getUriBuilder(?Site $site = null, ?SiteLanguage $siteLanguage = null, int $type = 0): UriBuilder
     {
         if (static::$uriBuilder === null) {
+            $serverRequest = $GLOBALS['TYPO3_REQUEST'] ?? ($GLOBALS['TYPO3_REQUEST'] = ServerRequestFactory::fromGlobals());
             static::getFrontendController($site, $siteLanguage, $type);
             /** @var UriBuilder $uriBuilder */
             $uriBuilder = InstanceUtility::get(UriBuilder::class);
             /** @var ContentObjectRenderer $contentObjectRenderer */
             $contentObjectRenderer = InstanceUtility::get(ContentObjectRenderer::class);
+            $contentObjectRenderer->setRequest($serverRequest);
             /** @var ConfigurationManager $configurationManager */
             $configurationManager = InstanceUtility::get(ConfigurationManager::class);
             /** @var ExtensionService $extService */
@@ -209,6 +212,9 @@ abstract class FrontendUtility
             $uriBuilder->injectConfigurationManager($configurationManager);
             $uriBuilder->injectExtensionService($extService);
             $uriBuilder->initializeObject();
+
+            $extbaseRequestBuilder = GeneralUtility::makeInstance(RequestBuilder::class);
+            $uriBuilder->setRequest($extbaseRequestBuilder->build($serverRequest));
             static::$uriBuilder = $uriBuilder;
         }
 

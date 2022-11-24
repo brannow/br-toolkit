@@ -77,7 +77,6 @@ class CacheService implements CacheServiceInterface, SingletonInterface
     {
         $exists = false;
         $value = $this->get($key, $context, $exists);
-
         if (!$exists) {
             $value = $block();
             $this->set($key, $value, $context, $ttl);
@@ -292,7 +291,6 @@ class CacheService implements CacheServiceInterface, SingletonInterface
             $instance->flush();
             $data = [];
         }
-
         self::$cacheBag[$context] = $data;
     }
 
