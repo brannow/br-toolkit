@@ -22,4 +22,9 @@ interface TreeProcessorDataInterface
      * @return \Iterator|array
      */
     public function getData();
+
+    /**
+     * @return TreeProcessorResultInterface
+     */
+    public function getResult(): TreeProcessorResultInterface;
 }
