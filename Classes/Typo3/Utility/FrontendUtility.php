@@ -7,10 +7,13 @@ use BR\Toolkit\Typo3\Utility\Stud\FakeMiddlewareHandler;
 use BR\Toolkit\Typo3\VersionWrapper\InstanceUtility;
 use TYPO3\CMS\Core\Cache\Backend\NullBackend;
 use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Cache\Frontend\NullFrontend;
 use TYPO3\CMS\Core\Cache\Frontend\VariableFrontend;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
+use TYPO3\CMS\Core\Error\Http\InternalServerErrorException;
+use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Http\ServerRequestFactory;
 use TYPO3\CMS\Core\Routing\PageArguments;
@@ -19,6 +22,7 @@ use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
+use TYPO3\CMS\Extbase\Mvc\Web\RequestBuilder;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Extbase\Service\ExtensionService;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
@@ -38,9 +42,10 @@ abstract class FrontendUtility
      * @param int $langId
      * @param int $type
      * @return TypoScriptFrontendController|null
+     * @throws InternalServerErrorException
+     * @throws NoSuchCacheException
+     * @throws ServiceUnavailableException
      * @throws Typo3ConfigException
-     * @throws \TYPO3\CMS\Core\Error\Http\InternalServerErrorException
-     * @throws \TYPO3\CMS\Core\Error\Http\ServiceUnavailableException
      */
     public static function getFrontendControllerWithPageId(int $pageId, int $langId = 0, int $type = 0): ?TypoScriptFrontendController
     {
@@ -59,9 +64,10 @@ abstract class FrontendUtility
      * @param SiteLanguage|null $siteLanguage
      * @param int $type
      * @return TypoScriptFrontendController|null
+     * @throws InternalServerErrorException
+     * @throws ServiceUnavailableException
      * @throws Typo3ConfigException
-     * @throws \TYPO3\CMS\Core\Error\Http\InternalServerErrorException
-     * @throws \TYPO3\CMS\Core\Error\Http\ServiceUnavailableException
+     * @throws NoSuchCacheException
      */
     public static function getFrontendController(?Site $site = null, ?SiteLanguage $siteLanguage = null, int $type = 0): ?TypoScriptFrontendController
     {
@@ -188,27 +194,35 @@ abstract class FrontendUtility
      * @param Site|null $site
      * @param SiteLanguage|null $siteLanguage
      * @param int $type
+     * @param array $configurationManagerConfig
      * @return UriBuilder
+     * @throws InternalServerErrorException
+     * @throws NoSuchCacheException
+     * @throws ServiceUnavailableException
      * @throws Typo3ConfigException
-     * @throws \TYPO3\CMS\Core\Error\Http\InternalServerErrorException
-     * @throws \TYPO3\CMS\Core\Error\Http\ServiceUnavailableException
      */
-    public static function getUriBuilder(?Site $site = null, ?SiteLanguage $siteLanguage = null, int $type = 0): UriBuilder
+    public static function getUriBuilder(?Site $site = null, ?SiteLanguage $siteLanguage = null, int $type = 0, array $configurationManagerConfig = []): UriBuilder
     {
         if (static::$uriBuilder === null) {
+            $serverRequest = $GLOBALS['TYPO3_REQUEST'] ?? ($GLOBALS['TYPO3_REQUEST'] = ServerRequestFactory::fromGlobals());
             static::getFrontendController($site, $siteLanguage, $type);
             /** @var UriBuilder $uriBuilder */
             $uriBuilder = InstanceUtility::get(UriBuilder::class);
             /** @var ContentObjectRenderer $contentObjectRenderer */
             $contentObjectRenderer = InstanceUtility::get(ContentObjectRenderer::class);
+            $contentObjectRenderer->setRequest($serverRequest);
             /** @var ConfigurationManager $configurationManager */
             $configurationManager = InstanceUtility::get(ConfigurationManager::class);
             /** @var ExtensionService $extService */
             $extService = InstanceUtility::get(ExtensionService::class);
             $configurationManager->setContentObject($contentObjectRenderer);
+            $configurationManager->setConfiguration($configurationManagerConfig);
             $uriBuilder->injectConfigurationManager($configurationManager);
             $uriBuilder->injectExtensionService($extService);
             $uriBuilder->initializeObject();
+
+            $extbaseRequestBuilder = GeneralUtility::makeInstance(RequestBuilder::class);
+            $uriBuilder->setRequest($extbaseRequestBuilder->build($serverRequest));
             static::$uriBuilder = $uriBuilder;
         }
 

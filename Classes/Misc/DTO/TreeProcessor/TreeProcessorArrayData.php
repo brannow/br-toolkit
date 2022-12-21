@@ -41,6 +41,15 @@ class TreeProcessorArrayData implements TreeProcessorDataInterface
     }
 
     /**
+     * overwrite to replace result object
+     * @return TreeProcessorResultGenerateInterface
+     */
+    protected function getResultObject(): TreeProcessorResultGenerateInterface
+    {
+        return new TreeProcessorResult();
+    }
+
+    /**
      * @param string|int $primaryKey
      * @param string|int $relationKey
      * @param array[] $data
@@ -79,5 +88,14 @@ class TreeProcessorArrayData implements TreeProcessorDataInterface
     public function getData()
     {
         return $this->data;
+    }
+
+    public function getResult(): TreeProcessorResultInterface
+    {
+        $tree = $this->getResultObject();
+        foreach ($this->getData() as $subItem) {
+            $tree->processData($this, $subItem);
+        }
+        return $tree;
     }
 }

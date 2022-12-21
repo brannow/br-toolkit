@@ -24,6 +24,11 @@ class TreeProcessorResult implements TreeProcessorResultGenerateInterface
         return $rootList;
     }
 
+    protected function getNewItemObject(): TreeProcessorResultItemInterface
+    {
+        return new TreeProcessorResultItem();
+    }
+
     /**
      * @param int $id
      * @param bool $createIfNotExists
@@ -32,7 +37,7 @@ class TreeProcessorResult implements TreeProcessorResultGenerateInterface
     public function getItem(int $id, bool $createIfNotExists = false): ?TreeProcessorResultItemInterface
     {
         if ($createIfNotExists) {
-            $item = $this->list[$id] ?? new TreeProcessorResultItem();
+            $item = $this->list[$id] ?? $this->getNewItemObject();
             $this->list[$id] = $item;
             return $item;
         }
@@ -49,16 +54,37 @@ class TreeProcessorResult implements TreeProcessorResultGenerateInterface
     }
 
     /**
+     * @param TreeProcessorDataInterface $data
+     * @param mixed $item
+     */
+    public function processData(TreeProcessorDataInterface $data, $item): void
+    {
+        if (($id = $data->getPrimaryIdFromData($item)) <= 0) {
+            return;
+        }
+
+        // set data
+        $itemObj = $this->setItemData($id, $data, $item);
+
+        // create relation
+        if (($rid = $data->getRelationIdFromData($item)) > 0) {
+            $parentItem = $this->getItem($rid, true);
+            // be aware this will create a cyclic object references structure
+            $parentItem->addChild($itemObj);
+        }
+    }
+
+    /**
      * @param int $id
-     * @param mixed $data
+     * @param TreeProcessorDataInterface $data
+     * @param mixed $item
      * @return TreeProcessorResultItemInterface
      */
-    public function setItemData(int $id, $data): TreeProcessorResultItemInterface
+    protected function setItemData(int $id, TreeProcessorDataInterface $data, $item): TreeProcessorResultItemInterface
     {
-        // create new item if not exists
-        $item = $this->list[$id] ?? new TreeProcessorResultItem();
-        $this->list[$id] = $item;
-        $item->setData($data);
-        return $item;
+        $itemObj = $this->list[$id] ??  $this->getNewItemObject();
+        $this->list[$id] = $itemObj;
+        $itemObj->setData($item);
+        return $itemObj;
     }
 }

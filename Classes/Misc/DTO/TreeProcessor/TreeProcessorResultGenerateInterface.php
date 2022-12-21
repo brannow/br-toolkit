@@ -6,11 +6,10 @@ namespace BR\Toolkit\Misc\DTO\TreeProcessor;
 interface TreeProcessorResultGenerateInterface extends TreeProcessorResultInterface
 {
     /**
-     * @param int $id
-     * @param mixed $data
-     * @return TreeProcessorResultItemInterface
+     * @param TreeProcessorDataInterface $data
+     * @param mixed $item
      */
-    public function setItemData(int $id, $data): TreeProcessorResultItemInterface;
+    public function processData(TreeProcessorDataInterface $data, $item): void;
 
     /**
      * @param int $id
