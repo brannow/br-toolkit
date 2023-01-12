@@ -30,6 +30,11 @@ class FrontendPluginLinkDemand extends FrontendLinkDemand implements FrontendPlu
         ]);
     }
 
+    protected function getCacheIdentifier(): array
+    {
+        return [...parent::getCacheIdentifier(), ...$this->getNamedPluginConfig()];
+    }
+
     /**
      * @return string
      */
