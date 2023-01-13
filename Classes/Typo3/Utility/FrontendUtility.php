@@ -5,6 +5,7 @@ namespace BR\Toolkit\Typo3\Utility;
 use BR\Toolkit\Exceptions\Typo3ConfigException;
 use BR\Toolkit\Typo3\Utility\Stud\FakeMiddlewareHandler;
 use BR\Toolkit\Typo3\VersionWrapper\InstanceUtility;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Cache\Backend\NullBackend;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
@@ -100,7 +101,7 @@ abstract class FrontendUtility
             GeneralUtility::setIndpEnv('HTTP_USER_AGENT', 'Custom - mode');
         }
 
-        $serverRequest = self::getServerRequest();
+        $request = self::getServerRequest();
         $frontendUser = InstanceUtility::get(FrontendUserAuthentication::class);
         $frontendUser->start();
         $frontendUser->unpack_uc();
@@ -223,7 +224,7 @@ abstract class FrontendUtility
             try {
                 $extbaseRequestBuilder = GeneralUtility::makeInstance(RequestBuilder::class);
                 $uriBuilder->setRequest($extbaseRequestBuilder->build($serverRequest));
-            } catch (\Exception) {}
+            } catch (\Exception $_) {}
             static::$uriBuilder = $uriBuilder;
         }
 
