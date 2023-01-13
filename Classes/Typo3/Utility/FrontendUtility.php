@@ -101,7 +101,7 @@ abstract class FrontendUtility
             GeneralUtility::setIndpEnv('HTTP_USER_AGENT', 'Custom - mode');
         }
 
-        $serverRequest = self::getServerRequest();
+        $request = self::getServerRequest();
         $frontendUser = InstanceUtility::get(FrontendUserAuthentication::class);
         $frontendUser->start();
         $frontendUser->unpack_uc();
@@ -224,7 +224,7 @@ abstract class FrontendUtility
             try {
                 $extbaseRequestBuilder = GeneralUtility::makeInstance(RequestBuilder::class);
                 $uriBuilder->setRequest($extbaseRequestBuilder->build($serverRequest));
-            } catch (\Exception) {}
+            } catch (\Exception $_) {}
             static::$uriBuilder = $uriBuilder;
         }
 
