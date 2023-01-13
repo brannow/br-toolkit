@@ -100,8 +100,7 @@ abstract class FrontendUtility
             GeneralUtility::setIndpEnv('HTTP_USER_AGENT', 'Custom - mode');
         }
 
-        $request = $GLOBALS['TYPO3_REQUEST'] ?? ServerRequestFactory::fromGlobals();
-
+        $serverRequest = self::getServerRequest();
         $frontendUser = InstanceUtility::get(FrontendUserAuthentication::class);
         $frontendUser->start();
         $frontendUser->unpack_uc();
@@ -204,8 +203,8 @@ abstract class FrontendUtility
     public static function getUriBuilder(?Site $site = null, ?SiteLanguage $siteLanguage = null, int $type = 0, array $configurationManagerConfig = []): UriBuilder
     {
         if (static::$uriBuilder === null) {
-            $serverRequest = $GLOBALS['TYPO3_REQUEST'] ?? ($GLOBALS['TYPO3_REQUEST'] = ServerRequestFactory::fromGlobals());
             static::getFrontendController($site, $siteLanguage, $type);
+            $serverRequest = self::getServerRequest();
             /** @var UriBuilder $uriBuilder */
             $uriBuilder = InstanceUtility::get(UriBuilder::class);
             /** @var ContentObjectRenderer $contentObjectRenderer */
@@ -221,11 +220,18 @@ abstract class FrontendUtility
             $uriBuilder->injectExtensionService($extService);
             $uriBuilder->initializeObject();
 
-            $extbaseRequestBuilder = GeneralUtility::makeInstance(RequestBuilder::class);
-            $uriBuilder->setRequest($extbaseRequestBuilder->build($serverRequest));
+            try {
+                $extbaseRequestBuilder = GeneralUtility::makeInstance(RequestBuilder::class);
+                $uriBuilder->setRequest($extbaseRequestBuilder->build($serverRequest));
+            } catch (\Exception) {}
             static::$uriBuilder = $uriBuilder;
         }
 
         return static::$uriBuilder->reset();
+    }
+    
+    private static function getServerRequest(): ServerRequestInterface
+    {
+        return $GLOBALS['TYPO3_REQUEST'] ??= (ServerRequestFactory::fromGlobals())->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE);
     }
 }
