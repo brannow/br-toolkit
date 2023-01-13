@@ -5,6 +5,7 @@ namespace BR\Toolkit\Typo3\Utility;
 use BR\Toolkit\Exceptions\Typo3ConfigException;
 use BR\Toolkit\Typo3\Utility\Stud\FakeMiddlewareHandler;
 use BR\Toolkit\Typo3\VersionWrapper\InstanceUtility;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Cache\Backend\NullBackend;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
