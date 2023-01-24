@@ -13,7 +13,7 @@ abstract class AbstractLinkDemand implements LinkDemandInterface
         return $this->cacheLevel;
     }
 
-    public function setCacheLevel(int $cacheLevel): static
+    public function setCacheLevel(int $cacheLevel): LinkDemandInterface
     {
         $this->cacheLevel = $cacheLevel;
         return $this;
@@ -36,7 +36,7 @@ abstract class AbstractLinkDemand implements LinkDemandInterface
         return $this->languageId;
     }
 
-    public function setLanguageId(int $languageId): static
+    public function setLanguageId(int $languageId): LinkDemandInterface
     {
         $this->languageId = $languageId;
         return $this;

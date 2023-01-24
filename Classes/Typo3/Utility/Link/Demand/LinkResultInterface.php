@@ -2,9 +2,8 @@
 declare(strict_types=1);
 namespace BR\Toolkit\Typo3\Utility\Link\Demand;
 
-use Stringable;
-
-interface LinkResultInterface extends Stringable
+interface LinkResultInterface
 {
     public function getDemand(): LinkDemandInterface;
+    public function __toString(): string;
 }

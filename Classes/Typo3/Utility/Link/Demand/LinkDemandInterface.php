@@ -12,7 +12,7 @@ interface LinkDemandInterface
     public function getCacheKey(): string;
     public function getCacheLifeTime(): int;
     public function getLanguageId(): int;
-    public function setLanguageId(int $languageId): static;
+    public function setLanguageId(int $languageId): LinkDemandInterface;
 
     public function getContext(): string;
 }

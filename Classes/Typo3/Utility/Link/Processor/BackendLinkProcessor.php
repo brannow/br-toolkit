@@ -28,7 +28,7 @@ class BackendLinkProcessor extends AbstractLinkProcessor
      * @return string
      * @throws CacheException|RouteNotFoundException
      */
-    public function process(LinkDemandInterface|BackendLinkDemandInterface $demand): string
+    public function process(LinkDemandInterface $demand): string
     {
         return $this->generateUri(
             $demand->getModule(),

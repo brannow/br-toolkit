@@ -44,7 +44,7 @@ class BackendLinkDemand extends AbstractLinkDemand implements BackendLinkDemandI
      * @param array $config
      * @return $this
      */
-    public function setReturnModuleConfig(array $config): static
+    public function setReturnModuleConfig(array $config): BackendLinkDemandInterface
     {
         $this->returnModuleConfig = $config;
         return $this;
@@ -54,37 +54,37 @@ class BackendLinkDemand extends AbstractLinkDemand implements BackendLinkDemandI
      * @param string $module
      * @return $this
      */
-    public function setReturnModule(string $module): static
+    public function setReturnModule(string $module): BackendLinkDemandInterface
     {
         $this->returnModule = $module;
         return $this;
     }
 
-    public function setUid(int $uid): static
+    public function setUid(int $uid): BackendLinkDemandInterface
     {
         $this->uid = $uid;
         return $this;
     }
 
-    public function setTable(string $table): static
+    public function setTable(string $table): BackendLinkDemandInterface
     {
         $this->table = $table;
         return $this;
     }
 
-    public function setModule(string $module): static
+    public function setModule(string $module): BackendLinkDemandInterface
     {
         $this->module = $module;
         return $this;
     }
 
-    public function setDefaultValues(array $values): static
+    public function setDefaultValues(array $values): BackendLinkDemandInterface
     {
         $this->defaultValues = $values;
         return $this;
     }
 
-    public function setModuleConfig(array $config): static
+    public function setModuleConfig(array $config): BackendLinkDemandInterface
     {
         $this->moduleConfig = $config;
         return $this;

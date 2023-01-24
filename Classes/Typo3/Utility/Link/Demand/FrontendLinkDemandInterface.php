@@ -18,15 +18,15 @@ interface FrontendLinkDemandInterface extends LinkDemandInterface
     public function getArgumentPrefix(): string;
     public function getTargetPageUid(): ?int;
 
-    public function setTargetPageType(int $pageType): static;
-    public function setNoCache(bool $noCache): static;
-    public function setSection(string $section): static;
-    public function setFormat(string $format): static;
-    public function setLinkAccessRestrictedPages(bool $access): static;
-    public function setArguments(array $arguments): static;
-    public function setCreateAbsoluteUri(bool $absolute): static;
-    public function setAddQueryString(bool $queryString): static;
-    public function setArgumentsToBeExcludedFromQueryString(array $argumentsToBeExcludedFromQueryString): static;
-    public function setArgumentPrefix(string $argumentPrefix): static;
-    public function setTargetPageUid(?int $pageUid): static;
+    public function setTargetPageType(int $pageType): FrontendLinkDemandInterface;
+    public function setNoCache(bool $noCache): FrontendLinkDemandInterface;
+    public function setSection(string $section): FrontendLinkDemandInterface;
+    public function setFormat(string $format): FrontendLinkDemandInterface;
+    public function setLinkAccessRestrictedPages(bool $access): FrontendLinkDemandInterface;
+    public function setArguments(array $arguments): FrontendLinkDemandInterface;
+    public function setCreateAbsoluteUri(bool $absolute): FrontendLinkDemandInterface;
+    public function setAddQueryString(bool $queryString): FrontendLinkDemandInterface;
+    public function setArgumentsToBeExcludedFromQueryString(array $argumentsToBeExcludedFromQueryString): FrontendLinkDemandInterface;
+    public function setArgumentPrefix(string $argumentPrefix): FrontendLinkDemandInterface;
+    public function setTargetPageUid(?int $pageUid): FrontendLinkDemandInterface;
 }
