@@ -26,7 +26,7 @@ class FrontendLinkProcessor extends AbstractLinkProcessor
      * @return string
      * @throws InternalServerErrorException|ServiceUnavailableException|Typo3ConfigException
      */
-    public function process(LinkDemandInterface|FrontendLinkDemandInterface|FrontendPluginLinkDemandInterface $demand): string
+    public function process(LinkDemandInterface $demand): string
     {
         $builder = $this->getUriBuilder();
         foreach ($demand->getBuilderMapping() as $method => $value) {

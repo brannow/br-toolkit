@@ -120,67 +120,67 @@ class FrontendLinkDemand extends AbstractLinkDemand implements FrontendLinkDeman
         return $this->pageUid;
     }
 
-    public function setTargetPageType(int $pageType): static
+    public function setTargetPageType(int $pageType): FrontendLinkDemandInterface
     {
         $this->pageType = $pageType;
         return $this;
     }
 
-    public function setNoCache(bool $noCache): static
+    public function setNoCache(bool $noCache): FrontendLinkDemandInterface
     {
         $this->noCache = $noCache;
         return $this;
     }
 
-    public function setSection(string $section): static
+    public function setSection(string $section): FrontendLinkDemandInterface
     {
         $this->section = $section;
         return $this;
     }
 
-    public function setFormat(string $format): static
+    public function setFormat(string $format): FrontendLinkDemandInterface
     {
         $this->format = $format;
         return $this;
     }
 
-    public function setLinkAccessRestrictedPages(bool $access): static
+    public function setLinkAccessRestrictedPages(bool $access): FrontendLinkDemandInterface
     {
         $this->linkAccessRestrictedPages = $access;
         return $this;
     }
 
-    public function setArguments(array $arguments): static
+    public function setArguments(array $arguments): FrontendLinkDemandInterface
     {
         $this->arguments = $arguments;
         return $this;
     }
 
-    public function setCreateAbsoluteUri(bool $absolute): static
+    public function setCreateAbsoluteUri(bool $absolute): FrontendLinkDemandInterface
     {
         $this->absoluteUri = $absolute;
         return $this;
     }
 
-    public function setAddQueryString(bool $queryString): static
+    public function setAddQueryString(bool $queryString): FrontendLinkDemandInterface
     {
         $this->queryStringsAllow = $queryString;
         return $this;
     }
 
-    public function setArgumentsToBeExcludedFromQueryString(array $argumentsToBeExcludedFromQueryString): static
+    public function setArgumentsToBeExcludedFromQueryString(array $argumentsToBeExcludedFromQueryString): FrontendLinkDemandInterface
     {
         $this->argumentsToBeExcludedFromQueryString =  $argumentsToBeExcludedFromQueryString;
         return $this;
     }
 
-    public function setArgumentPrefix(string $argumentPrefix): static
+    public function setArgumentPrefix(string $argumentPrefix): FrontendLinkDemandInterface
     {
         $this->argumentPrefix = $argumentPrefix;
         return $this;
     }
 
-    public function setTargetPageUid(?int $pageUid): static
+    public function setTargetPageUid(?int $pageUid): FrontendLinkDemandInterface
     {
         $this->pageUid = $pageUid;
         return $this;

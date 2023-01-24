@@ -27,7 +27,7 @@ abstract class LinkUtility
      * @return LinkResultInterface
      * @throws CacheException|RouteNotFoundException
      */
-    public static function getLink(FrontendLinkDemandInterface|BackendLinkDemandInterface $linkDemand): LinkResultInterface
+    public static function getLink(LinkDemandInterface $linkDemand): LinkResultInterface
     {
         return self::getCacheLink($linkDemand);
     }
@@ -37,7 +37,7 @@ abstract class LinkUtility
      * @return LinkResultInterface
      * @throws CacheException|RouteNotFoundException|Exception
      */
-    private static function getCacheLink(FrontendLinkDemandInterface|BackendLinkDemandInterface $linkDemand): LinkResultInterface
+    private static function getCacheLink(LinkDemandInterface $linkDemand): LinkResultInterface
     {
         $processor = static::getProcessor($linkDemand);
 
@@ -65,7 +65,7 @@ abstract class LinkUtility
      * @return LinkProcessorInterface
      * @throws Exception
      */
-    protected static function getProcessor(FrontendLinkDemandInterface|BackendLinkDemandInterface $linkDemand): LinkProcessorInterface
+    protected static function getProcessor(LinkDemandInterface $linkDemand): LinkProcessorInterface
     {
         $processor = AbstractLinkProcessor::getSupportedProcessor($linkDemand);
         if ($processor === null) {

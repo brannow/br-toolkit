@@ -11,7 +11,7 @@ class LinkResult implements LinkResultInterface
      * @param string $link
      * @return static
      */
-    public function setLink(string $link): static
+    public function setLink(string $link): LinkResultInterface
     {
         $this->link = $link;
         return $this;
@@ -21,7 +21,7 @@ class LinkResult implements LinkResultInterface
      * @param LinkDemandInterface $demand
      * @return static
      */
-    public function setDemand(LinkDemandInterface $demand): static
+    public function setDemand(LinkDemandInterface $demand): LinkResultInterface
     {
         $this->demand = $demand;
         return $this;

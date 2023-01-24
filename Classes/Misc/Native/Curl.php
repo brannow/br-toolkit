@@ -101,7 +101,7 @@ class Curl
      */
     public function curlClose($ch)
     {
-        return curl_close($ch);
+        curl_close($ch);
     }
 
     /**
@@ -110,6 +110,6 @@ class Curl
      */
     public function curlIsOpen($ch): bool
     {
-        return ($ch !== null && is_resource($ch) && strtolower(get_resource_type($ch) === 'curl'));
+        return (is_resource($ch) && strtolower(get_resource_type($ch) === 'curl'));
     }
 }

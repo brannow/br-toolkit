@@ -16,13 +16,13 @@ interface BackendLinkDemandInterface extends LinkDemandInterface
     public const TYPE_LOCALIZE = 'localize';
     public const TYPE_RETURN = 'return';
 
-    public function setUid(int $uid): static;
-    public function setTable(string $table): static;
-    public function setModule(string $module): static;
-    public function setModuleConfig(array $config): static;
-    public function setReturnModule(string $module): static;
-    public function setReturnModuleConfig(array $config): static;
-    public function setDefaultValues(array $values): static;
+    public function setUid(int $uid): BackendLinkDemandInterface;
+    public function setTable(string $table): BackendLinkDemandInterface;
+    public function setModule(string $module): BackendLinkDemandInterface;
+    public function setModuleConfig(array $config): BackendLinkDemandInterface;
+    public function setReturnModule(string $module): BackendLinkDemandInterface;
+    public function setReturnModuleConfig(array $config): BackendLinkDemandInterface;
+    public function setDefaultValues(array $values): BackendLinkDemandInterface;
 
     public function getUid(): int;
     public function getTable(): string;

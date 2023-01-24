@@ -20,7 +20,7 @@ class BackendCreateRecordLinkDemand extends BackendLinkDemand
         return BackendLinkDemandInterface::MODULE_RECORD;
     }
 
-    public function setStoragePid(int $uid): static
+    public function setStoragePid(int $uid): BackendLinkDemandInterface
     {
         $this->setUid($uid);
         return $this;

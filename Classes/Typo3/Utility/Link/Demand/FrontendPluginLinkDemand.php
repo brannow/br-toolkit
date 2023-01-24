@@ -47,7 +47,7 @@ class FrontendPluginLinkDemand extends FrontendLinkDemand implements FrontendPlu
      * @param string $actionName
      * @return $this
      */
-    public function setActionName(string $actionName): static
+    public function setActionName(string $actionName): FrontendPluginLinkDemandInterface
     {
         $this->actionName = $actionName;
         return $this;
@@ -65,7 +65,7 @@ class FrontendPluginLinkDemand extends FrontendLinkDemand implements FrontendPlu
      * @param array $controllerArguments
      * @return $this
      */
-    public function setControllerArguments(array $controllerArguments): static
+    public function setControllerArguments(array $controllerArguments): FrontendPluginLinkDemandInterface
     {
         $this->controllerArguments = $controllerArguments;
         return $this;
@@ -83,7 +83,7 @@ class FrontendPluginLinkDemand extends FrontendLinkDemand implements FrontendPlu
      * @param string $controllerName
      * @return $this
      */
-    public function setControllerName(string $controllerName): static
+    public function setControllerName(string $controllerName): FrontendPluginLinkDemandInterface
     {
         $this->controllerName = $controllerName;
         return $this;
@@ -101,7 +101,7 @@ class FrontendPluginLinkDemand extends FrontendLinkDemand implements FrontendPlu
      * @param string $extensionName
      * @return $this
      */
-    public function setExtensionName(string $extensionName): static
+    public function setExtensionName(string $extensionName): FrontendPluginLinkDemandInterface
     {
         $this->extensionName = $extensionName;
         return $this;
@@ -119,7 +119,7 @@ class FrontendPluginLinkDemand extends FrontendLinkDemand implements FrontendPlu
      * @param string $pluginName
      * @return $this
      */
-    public function setPluginName(string $pluginName): static
+    public function setPluginName(string $pluginName): FrontendPluginLinkDemandInterface
     {
         $this->pluginName = $pluginName;
         return $this;
