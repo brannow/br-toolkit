@@ -7,6 +7,7 @@ class MockResultItem
     private ?MockResultItem $parent;
     private string $className;
     private ?Object $object = null;
+    /** @var MockResultItem[] */
     private array $children = [];
     private string $aliasClassName = '';
 
@@ -87,5 +88,10 @@ class MockResultItem
         }
         $classList[] = $this->getClassName();
         return $classList;
+    }
+
+    public function getPropertyObject(string $className): ?MockResultItem
+    {
+        return $this->children[$className]??null;
     }
 }
