@@ -19,7 +19,7 @@ class TreeProcessorServiceTest extends TestCase
         $this->service = new TreeProcessorService();
     }
 
-    public function validTreeDataProvider(): array
+    public static function validTreeDataProvider(): array
     {
         return [
             [
@@ -86,7 +86,7 @@ class TreeProcessorServiceTest extends TestCase
         $this->assertNull($treeResult->getItem(0));
     }
 
-    public function validTreeDataWithDataProvider(): array
+    public static function validTreeDataWithDataProvider(): array
     {
         return [
             [
@@ -129,7 +129,7 @@ class TreeProcessorServiceTest extends TestCase
         $this->assertNull($treeResult->getItem(0));
     }
 
-    public function invalidTreeDataWithDataProvider(): array
+    public static function invalidTreeDataWithDataProvider(): array
     {
         return [
             [
@@ -183,7 +183,7 @@ class TreeProcessorServiceTest extends TestCase
         $treeResult = $this->service->processTreeResult($treeData);
     }
 
-    public function invalidIdTreeDataWithDataProvider(): array
+    public static function invalidIdTreeDataWithDataProvider(): array
     {
         return [
             [

@@ -10,7 +10,7 @@ class CurlRequestOptionsTest extends TestCase
     /**
      * @return array
      */
-    public function optionProvider(): array
+    public static function optionProvider(): array
     {
         return [
             // key, value

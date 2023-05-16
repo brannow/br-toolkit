@@ -27,7 +27,7 @@ class CurlServiceTest extends TestCase
     /**
      * @return array
      */
-    public function curlRequestDataProvider(): array
+    public static function curlRequestDataProvider(): array
     {
         return [
             ['url', 'GET'],

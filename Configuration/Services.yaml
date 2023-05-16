@@ -6,7 +6,7 @@ services:
 
   BR\Toolkit\:
     resource: '../Classes/*'
-    exclude: ['../Classes/{Misc/DTO,Typo3/DTO,PHPUnit,Exceptions}']
+    exclude: ['../Classes/{Misc/DTO,Typo3/DTO,PHPUnit,Exceptions,Typo3/Routing/Aspect}']
 
 
   BR\Toolkit\Typo3\Cache\Command\CacheCommand:

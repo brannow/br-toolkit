@@ -10,7 +10,7 @@ class CurlRequestDataTest extends TestCase
     /**
      * @return array
      */
-    public function dataProvider(): array
+    public static function dataProvider(): array
     {
         return [
             // url, method, query, data

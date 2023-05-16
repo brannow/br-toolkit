@@ -33,7 +33,7 @@ class PasswordTraitBridge
 
 class PasswordTraitTest extends TestCase
 {
-    public function passwordHashProvider(): array
+    public static function passwordHashProvider(): array
     {
         return [
             ['pass1', -1],

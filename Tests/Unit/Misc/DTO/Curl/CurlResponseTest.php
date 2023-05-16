@@ -10,7 +10,7 @@ class CurlResponseTest extends TestCase
     /**
      * @return array
      */
-    public function responseProvider(): array
+    public static function responseProvider(): array
     {
         return [
             // data, headers, errorStr, errorNr, data_as_array
