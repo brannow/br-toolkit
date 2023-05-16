@@ -148,7 +148,7 @@ class RequestRoutingMiddlewareTest extends TestCase
     /**
      * @return array|array[]
      */
-    public function routeSuccessProvider(): array
+    public static function routeSuccessProvider(): array
     {
         return [
             [
@@ -238,7 +238,7 @@ class RequestRoutingMiddlewareTest extends TestCase
     /**
      * @return array|array[]
      */
-    public function routeFailRoutingProvider(): array
+    public static function routeFailRoutingProvider(): array
     {
         return [
             [
@@ -275,7 +275,7 @@ class RequestRoutingMiddlewareTest extends TestCase
         $this->middleware->process($this->request, $this->handler);
     }
 
-    public function routeFailSetupProvider(): array
+    public static function routeFailSetupProvider(): array
     {
         return [
             [

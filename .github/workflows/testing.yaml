@@ -14,7 +14,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "${{ matrix.php }}"
-          coverage: none
+          coverage: xdebug
           tools: composer:v2
       - name: "Composer Install"
         run: "composer require typo3/minimal=${{ matrix.typo3 }}"

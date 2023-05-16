@@ -10,7 +10,7 @@ class CurlRequestTest extends TestCase
     /**
      * @return array
      */
-    public function dataProvider(): array
+    public static function dataProvider(): array
     {
         return [
             // url, method, query, data
@@ -24,7 +24,7 @@ class CurlRequestTest extends TestCase
     /**
      * @return array
      */
-    public function optionProvider(): array
+    public static function optionProvider(): array
     {
         return [
             // key, value
