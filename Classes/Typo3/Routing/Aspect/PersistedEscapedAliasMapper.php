@@ -182,7 +182,7 @@ class PersistedEscapedAliasMapper extends PersistedAliasMapper
         $results = $queryBuilder
             ->select(...$this->persistenceFieldNames)
             ->where(...$constraints)
-            ->execute()
+            ->executeQuery()
             ->fetchAllAssociative();
         // limit results to be contained in rootPageId of current Site
         // (which is defining the route configuration currently being processed)
