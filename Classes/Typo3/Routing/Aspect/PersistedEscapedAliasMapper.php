@@ -54,15 +54,20 @@ class PersistedEscapedAliasMapper extends PersistedAliasMapper
      */
     private function fetchSlugName(string $value): ?string
     {
-        $result = $this->findByIdentifier($value);
-        $result = $this->resolveOverlay($result);
-        if (!isset($result[$this->routeFieldName])) {
-            return null;
-        }
-
-        $label = (string)$result[$this->routeFieldName];
-        if ($this->uidSuffix) {
-            $label .= '-' . $result['uid'];
+        $value = urldecode($value);
+        if ($this->tableName === '') {
+            $label = urldecode($value);
+        } else {
+            $this->siteLanguage = $GLOBALS['TSFE']->language;
+            $result = $this->findByIdentifier($value);
+            $result = $this->resolveOverlay($result);
+            if (!isset($result[$this->routeFieldName])) {
+                return null;
+            }
+            $label = (string)$result[$this->routeFieldName];
+            if ($this->uidSuffix) {
+                $label .= '-' . $result['uid'];
+            }
         }
 
         if ($this->lowerCase) {
@@ -84,6 +89,10 @@ class PersistedEscapedAliasMapper extends PersistedAliasMapper
             $value = $this->extractUidFromSegment($value, $uidCapture);
             if ($uidCapture || $value === null)
                 return $value;
+        }
+        $this->siteLanguage = $GLOBALS['TSFE']->language;
+        if ($this->tableName === '') {
+            return $value;
         }
 
         $value = $this->replacePlaceholderWithDBPlaceholder($value);
@@ -174,7 +183,7 @@ class PersistedEscapedAliasMapper extends PersistedAliasMapper
             ->select(...$this->persistenceFieldNames)
             ->where(...$constraints)
             ->execute()
-            ->fetchAll();
+            ->fetchAllAssociative();
         // limit results to be contained in rootPageId of current Site
         // (which is defining the route configuration currently being processed)
         if ($this->slugUniqueInSite) {
