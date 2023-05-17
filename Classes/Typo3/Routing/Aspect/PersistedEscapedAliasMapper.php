@@ -10,6 +10,7 @@ class PersistedEscapedAliasMapper extends PersistedAliasMapper
     private string $placeholder = '-';
     private bool $deflatePlaceholder = true;
     private bool $uidSuffix = false;
+    private bool $lowerCase = false;
     private string $settingsHash;
     private static array $runtimeCache = [];
     private const CHAR_MAPPING = [
@@ -32,6 +33,7 @@ class PersistedEscapedAliasMapper extends PersistedAliasMapper
         $this->placeholder = $settings['placeholder'] ?? $this->placeholder;
         $this->deflatePlaceholder = $settings['deflate'] ?? $this->deflatePlaceholder;
         $this->uidSuffix = $settings['uidSuffix'] ?? $this->uidSuffix;
+        $this->lowerCase = $settings['lowerCase'] ?? $this->lowerCase;
         $this->settingsHash = md5(serialize($settings));
     }
 
@@ -62,6 +64,11 @@ class PersistedEscapedAliasMapper extends PersistedAliasMapper
         if ($this->uidSuffix) {
             $label .= '-' . $result['uid'];
         }
+
+        if ($this->lowerCase) {
+            $label = strtolower($label);
+        }
+
         return $this->purgeRouteValuePrefix(
             $label
         );
