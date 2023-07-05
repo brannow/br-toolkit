@@ -7,5 +7,7 @@ call_user_func(function ($extKey) {
     \BR\Toolkit\Typo3\Cache\CacheManager::announceCache();
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['routing']['aspects']['PersistedEscapedAliasMapper'] =
         \BR\Toolkit\Typo3\Routing\Aspect\PersistedEscapedAliasMapper::class;
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['routing']['aspects']['StaticPatternMapper'] =
+        \BR\Toolkit\Typo3\Routing\Aspect\StaticPatternMapper::class;
 
 }, 'br_toolkit');
