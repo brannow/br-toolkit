@@ -2,13 +2,12 @@
 
 namespace BR\Toolkit\Misc\DTO\TreeProcessor;
 
-
 class TreeProcessorResult implements TreeProcessorResultGenerateInterface
 {
     /**
      * @var TreeProcessorResultItemInterface[]
      */
-    private $list = [];
+    private array $list = [];
 
     /**
      * @return TreeProcessorResultItemInterface[]
@@ -86,5 +85,13 @@ class TreeProcessorResult implements TreeProcessorResultGenerateInterface
         $this->list[$id] = $itemObj;
         $itemObj->setData($item);
         return $itemObj;
+    }
+
+    /**
+     * @return TreeProcessorResultItemInterface[]
+     */
+    public function getItems(): array
+    {
+        return $this->list;
     }
 }

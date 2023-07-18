@@ -2,7 +2,6 @@
 
 namespace BR\Toolkit\Misc\DTO\TreeProcessor;
 
-
 interface TreeProcessorResultInterface
 {
     /**
@@ -20,4 +19,9 @@ interface TreeProcessorResultInterface
      * @return int
      */
     public function count(): int;
+
+    /**
+     * @return TreeProcessorResultItemInterface[]
+     */
+    public function getItems(): array;
 }
