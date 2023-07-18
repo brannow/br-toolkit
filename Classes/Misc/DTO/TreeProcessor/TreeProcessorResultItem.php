@@ -57,6 +57,17 @@ class TreeProcessorResultItem implements TreeProcessorResultItemInterface
         return array_values($this->children);
     }
 
+    public function getChildrenRecursive(): array
+    {
+        $childrenRecursive = [];
+        foreach ($this->getChildren() as $child) {
+            $childrenRecursive[] = $child;
+            $childrenRecursive = array_merge($childrenRecursive, $child->getChildrenRecursive());
+        }
+
+        return $childrenRecursive;
+    }
+
     /**
      * @param TreeProcessorResultItemInterface|null $parent
      */

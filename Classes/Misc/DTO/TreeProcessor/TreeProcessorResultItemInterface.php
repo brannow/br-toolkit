@@ -27,6 +27,11 @@ interface TreeProcessorResultItemInterface
     public function getChildren(): array;
 
     /**
+     * @return TreeProcessorResultItemInterface[]
+     */
+    public function getChildrenRecursive(): array;
+
+    /**
      * @param TreeProcessorResultItemInterface|null $parent
      */
     public function setParent(?TreeProcessorResultItemInterface $parent): void;
