@@ -2,10 +2,6 @@
 
 namespace BR\Toolkit\Misc\DTO\TreeProcessor;
 
-
-use ArrayIterator;
-use Traversable;
-
 class TreeProcessorResult implements TreeProcessorResultGenerateInterface
 {
     /**

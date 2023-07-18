@@ -2,14 +2,6 @@
 
 namespace BR\Toolkit\Misc\DTO\TreeProcessor;
 
-
-use Traversable;
-
-
-/**
- * @template TreeProcessorResultItemInterface
- * @template-implements  \IteratorAggregate<string, TreeProcessorResultItemInterface>
- **/
 interface TreeProcessorResultInterface
 {
     /**
