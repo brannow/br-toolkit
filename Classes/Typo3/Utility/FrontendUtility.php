@@ -102,10 +102,11 @@ abstract class FrontendUtility
         }
 
         $request = self::getServerRequest();
+        /** @var FrontendUserAuthentication $frontendUser */
         $frontendUser = InstanceUtility::get(FrontendUserAuthentication::class);
-        $frontendUser->start();
+        $frontendUser->start($request);
         $frontendUser->unpack_uc();
-        $pageArguments = InstanceUtility::get(PageArguments::class, $site->getRootPageId(), $type, [], [], $request->getQueryParams());
+        $pageArguments = InstanceUtility::get(PageArguments::class, $site->getRootPageId(), (string)$type, [], [], $request->getQueryParams());
         $request = $request->withAttribute('language', $siteLanguage)
             ->withAttribute('site', $site)
             ->withAttribute('frontend.user', $frontendUser)
@@ -138,14 +139,7 @@ abstract class FrontendUtility
 
         $tsfeInit = InstanceUtility::get(TypoScriptFrontendInitialization::class);
         $tsfeInit->process($request, new FakeMiddlewareHandler());
-        $GLOBALS['TYPO3_REQUEST'] = $request;
-
-        //$GLOBALS['TSFE']->fe_user = $frontendUser;
-        $GLOBALS['TSFE']->getConfigArray($request);
-        $GLOBALS['TSFE']->tmpl->start($GLOBALS['TSFE']->rootLine);
-
-        // Locks may be acquired here
-        $GLOBALS['TSFE']->getFromCache($request);
+        $GLOBALS['TYPO3_REQUEST'] = $GLOBALS['TSFE']->getFromCache($request);;
 
         return $GLOBALS['TSFE'];
     }
@@ -219,7 +213,7 @@ abstract class FrontendUtility
             $configurationManager->setConfiguration($configurationManagerConfig);
             $uriBuilder->injectConfigurationManager($configurationManager);
             $uriBuilder->injectExtensionService($extService);
-            $uriBuilder->initializeObject();
+            //$uriBuilder->initializeObject();
 
             try {
                 $extbaseRequestBuilder = GeneralUtility::makeInstance(RequestBuilder::class);
@@ -230,7 +224,7 @@ abstract class FrontendUtility
 
         return static::$uriBuilder->reset();
     }
-    
+
     private static function getServerRequest(): ServerRequestInterface
     {
         return $GLOBALS['TYPO3_REQUEST'] ??= (ServerRequestFactory::fromGlobals())->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE);

@@ -11,10 +11,10 @@ $EM_CONF['br_toolkit'] = [
     'uploadfolder' => 0,
     'createDirs' => '',
     'clearCacheOnLoad' => 1,
-    'version' => '2.2.7',
+    'version' => '3.0.0',
     'constraints' => [
       'depends' => [
-        'typo3' => '11.5.0-11.5.99'
+        'typo3' => '12.4.0-12.4.99'
       ],
       'conflicts' => [],
       'suggests' => []
