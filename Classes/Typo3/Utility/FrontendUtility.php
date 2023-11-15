@@ -16,6 +16,7 @@ use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Error\Http\InternalServerErrorException;
 use TYPO3\CMS\Core\Error\Http\ServiceUnavailableException;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
+use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Http\ServerRequestFactory;
 use TYPO3\CMS\Core\Routing\PageArguments;
 use TYPO3\CMS\Core\Site\Entity\Site;
@@ -227,6 +228,8 @@ abstract class FrontendUtility
 
     private static function getServerRequest(): ServerRequestInterface
     {
-        return $GLOBALS['TYPO3_REQUEST'] ??= (ServerRequestFactory::fromGlobals())->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE);
+        return $GLOBALS['TYPO3_REQUEST'] ??= (ServerRequestFactory::fromGlobals())
+            ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE)
+            ->withAttribute('normalizedParams', NormalizedParams::createFromRequest(ServerRequestFactory::fromGlobals()));
     }
 }
