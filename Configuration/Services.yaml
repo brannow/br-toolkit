@@ -6,8 +6,10 @@ services:
 
   BR\Toolkit\:
     resource: '../Classes/*'
-    exclude: ['../Classes/{Misc/DTO,Typo3/DTO,PHPUnit,Exceptions,Typo3/Routing/Aspect}']
-
+    exclude: [
+      '../Classes/{Misc/DTO,Typo3/DTO,PHPUnit,Exceptions,Typo3/Routing/Aspect}',
+      '../Classes/Typo3/Cache/SecureFileBackend.php'
+    ]
 
   BR\Toolkit\Typo3\Cache\Command\CacheCommand:
     tags:
