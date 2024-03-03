@@ -287,8 +287,8 @@ class CacheService implements CacheServiceInterface, SingletonInterface
         }
 
         if (!is_array($data)) {
-            $instance->remove($this->getGlobalCacheKey($context));
-            $instance->flush();
+            //$instance->remove($this->getGlobalCacheKey($context));
+            //$instance->flush();
             $data = [];
         }
         self::$cacheBag[$context] = $data;
