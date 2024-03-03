@@ -1,7 +1,6 @@
 <?php
 namespace BR\Toolkit\Typo3\Cache;
 
-use TYPO3\CMS\Core\Cache\Backend\FileBackend;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Cache\Frontend\VariableFrontend;
 use TYPO3\CMS\Core\Cache\CacheManager as BaseCacheManager;
@@ -12,7 +11,7 @@ class CacheManager extends BaseCacheManager
     public const CACHE_OPTION_FILE = 1;
 
     public static $cacheOptions = [
-        self::CACHE_OPTION_FILE => FileBackend::class
+        self::CACHE_OPTION_FILE => SecureFileBackend::class
     ];
 
     /**

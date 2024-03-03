@@ -142,7 +142,7 @@ abstract class FrontendUtility
 
         //$GLOBALS['TSFE']->fe_user = $frontendUser;
         $GLOBALS['TSFE']->getConfigArray($request);
-        $GLOBALS['TSFE']->tmpl->start($GLOBALS['TSFE']->rootLine);
+        //$GLOBALS['TSFE']->tmpl->start($GLOBALS['TSFE']->rootLine);
 
         // Locks may be acquired here
         $GLOBALS['TSFE']->getFromCache($request);

@@ -284,13 +284,12 @@ class CacheService implements CacheServiceInterface, SingletonInterface
             if ($rawData !== false && is_string($rawData)) {
                 $data = unserialize($rawData);
             }
+
+            if (!is_array($data)) {
+                $data = [];
+            }
         }
 
-        if (!is_array($data)) {
-            $instance->remove($this->getGlobalCacheKey($context));
-            $instance->flush();
-            $data = [];
-        }
         self::$cacheBag[$context] = $data;
     }
 
@@ -346,6 +345,11 @@ class CacheService implements CacheServiceInterface, SingletonInterface
      */
     private function getGlobalCacheKey(string $context): string
     {
-        return sha1($context);
+        $cleanHash = hash('xxh128', $context);
+        $sanitized = preg_replace('/[\/\?%*:|"<>]/', '_', $context);
+        $sanitized = str_replace(' ', '_', $sanitized);
+        $sanitized = preg_replace('/_+/', '_', $sanitized);
+        $sanitized = trim($sanitized, '_');
+        return $sanitized . '_' . $cleanHash;
     }
 }
