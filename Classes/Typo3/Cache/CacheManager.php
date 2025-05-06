@@ -20,7 +20,7 @@ class CacheManager extends BaseCacheManager
      */
     public static function announceCache(int $cacheOption = self::CACHE_OPTION_FILE): array
     {
-        return $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][static::CACHE_DOMAIN] = [
+        return $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][static::CACHE_DOMAIN] ??= [
             'frontend' => VariableFrontend::class,
             'backend' => static::$cacheOptions[$cacheOption]??static::$cacheOptions[static::CACHE_OPTION_FILE],
             'groups' => [
