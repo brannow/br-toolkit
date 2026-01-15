@@ -191,6 +191,63 @@ abstract class FrontendUtility
     }
 
     /**
+     * Generate frontend link safe for backend context
+     * Uses native TYPO3 Site routing without session manipulation
+     *
+     * This method is safe to use in backend context (DataHandler hooks, backend modules, etc.)
+     * because it uses TYPO3's Site router directly without initializing TSFE or frontend sessions.
+     *
+     * @param int $pageUid
+     * @param array $additionalParams
+     * @param int $languageId
+     * @return string
+     */
+    public static function generateBackendSafeLink(int $pageUid, array $additionalParams = [], int $languageId = 0): string
+    {
+        try {
+            $site = static::getSite($pageUid);
+            $language = $languageId > 0 ? $site->getLanguageById($languageId) : $site->getDefaultLanguage();
+
+            // Use Site router directly - NO TSFE initialization, NO session manipulation
+            $uri = $site->getRouter()->generateUri(
+                $pageUid,
+                $additionalParams,
+                '',
+                $language->getTypo3Language()
+            );
+
+            return (string)$uri;
+        } catch (\Exception $e) {
+            return '';
+        }
+    }
+
+    /**
+     * Check if we are in backend context
+     *
+     * @return bool
+     */
+    protected static function isBackendContext(): bool
+    {
+        // Check for TYPO3_MODE constant (TYPO3 v10)
+        if (defined('TYPO3_MODE') && TYPO3_MODE === 'BE') {
+            return true;
+        }
+
+        // Check request attribute for application type (TYPO3 v10+)
+        if (isset($GLOBALS['TYPO3_REQUEST']) &&
+            $GLOBALS['TYPO3_REQUEST'] instanceof \Psr\Http\Message\ServerRequestInterface) {
+            $applicationType = $GLOBALS['TYPO3_REQUEST']->getAttribute('applicationType');
+            if ($applicationType === \TYPO3\CMS\Core\Core\SystemEnvironmentBuilder::REQUESTTYPE_BE) {
+                return true;
+            }
+        }
+
+        // Check for BE_USER as fallback
+        return isset($GLOBALS['BE_USER']) && $GLOBALS['BE_USER'] instanceof \TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+    }
+
+    /**
      * @param Site|null $site
      * @param SiteLanguage|null $siteLanguage
      * @param int $type
@@ -201,6 +258,18 @@ abstract class FrontendUtility
      */
     public static function getUriBuilder(?Site $site = null, ?SiteLanguage $siteLanguage = null, int $type = 0): UriBuilder
     {
+        // Check if we are in backend context
+        if (self::isBackendContext()) {
+            // In backend: return backend-safe UriBuilder to avoid session corruption
+            if ($site === null) {
+                $site = static::getSite();
+            }
+            if ($siteLanguage === null) {
+                $siteLanguage = $site->getDefaultLanguage();
+            }
+            return new BackendSafeUriBuilder($site, $siteLanguage);
+        }
+
         if (static::$uriBuilder === null) {
             static::getFrontendController($site, $siteLanguage, $type);
             /** @var UriBuilder $uriBuilder */
